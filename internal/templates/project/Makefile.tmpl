@@ -1,0 +1,10 @@
+.PHONY: run build tidy
+
+run:
+	go run ./cmd/service
+
+build:
+	go build -o bin/service ./cmd/service
+
+tidy:
+	go mod tidy

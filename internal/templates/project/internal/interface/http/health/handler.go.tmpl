@@ -1,0 +1,31 @@
+package health
+
+import (
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+	zresp "github.com/txbao/goeasy/response"
+
+	apphealth "{{ .ModuleName }}/internal/app/health"
+)
+
+// Handler HTTP 适配：调用 Application Query/Command。
+type Handler struct {
+	app *apphealth.Application
+}
+
+func NewHandler(app *apphealth.Application) *Handler {
+	return &Handler{app: app}
+}
+
+func (h *Handler) Check(c *gin.Context) {
+	status, err := h.app.Queries().Check(c.Request.Context(), "{{ .ProjectName }}")
+	if err != nil {
+		zresp.Fail(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	zresp.Success(c, CheckResponse{
+		OK:      status.OK,
+		Message: status.Message,
+	})
+}

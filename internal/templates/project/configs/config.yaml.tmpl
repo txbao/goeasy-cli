@@ -1,0 +1,60 @@
+app_name: {{ .ProjectName }}
+env: dev
+http:
+  host: 0.0.0.0
+  port: 8080
+
+database:
+  enabled: false
+  driver: postgres
+  dsn: ""
+
+redis:
+  enabled: false
+  addr: ""
+
+mq:
+  enabled: false
+  type: nsq
+  addr: ""
+
+grpc:
+  enabled: false
+  addr: ""
+  timeout_sec: 5
+  max_retries: 2
+
+governance:
+  breaker:
+    enabled: false
+  limiter:
+    enabled: false
+    qps: 100
+    burst: 200
+  retry:
+    enabled: false
+    max_retries: 3
+    backoff_ms: 100
+
+observability:
+  trace:
+    enabled: true
+  metrics:
+    enabled: false
+    path: /metrics
+  audit:
+    enabled: false
+  health:
+    enabled: true
+    path: /healthz
+
+enterprise:
+  jwt:
+    enabled: false
+    secret: ""
+    issuer: {{ .ProjectName }}
+    expire_min: 60
+  casbin:
+    enabled: false
+  idgen:
+    mode: uuid

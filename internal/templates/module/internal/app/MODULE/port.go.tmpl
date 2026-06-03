@@ -1,0 +1,6 @@
+package {{ .ModuleSnake }}
+
+// RepositoryPort 应用层对外部仓储的端口（可选）。
+type RepositoryPort interface {
+	// 由 domain.Repository 实现，应用层依赖 domain 接口即可。
+}

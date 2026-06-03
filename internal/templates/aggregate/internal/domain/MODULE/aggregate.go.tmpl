@@ -1,0 +1,9 @@
+package {{ .ModuleSnake }}
+
+type Aggregate struct {
+	Root {{ .ModulePascal }}
+}
+
+func (a *Aggregate) Validate() error {
+	return nil
+}

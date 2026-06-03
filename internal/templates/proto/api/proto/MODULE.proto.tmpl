@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package {{ .ModuleSnake }};
+
+option go_package = "{{ .ModuleName }}/api/proto/{{ .ModuleSnake }};{{ .ModuleSnake }}pb";
+
+service {{ .ModulePascal }}Service {
+  rpc Get{{ .ModulePascal }} (Get{{ .ModulePascal }}Request) returns (Get{{ .ModulePascal }}Response);
+}
+
+message Get{{ .ModulePascal }}Request {
+  string id = 1;
+}
+
+message Get{{ .ModulePascal }}Response {
+  string id = 1;
+}

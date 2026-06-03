@@ -1,0 +1,42 @@
+package {{ .ModuleSnake }}
+
+import (
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+
+	app "{{ .ModuleName }}/internal/app/{{ .ModuleSnake }}"
+	"{{ .ModuleName }}/internal/app/{{ .ModuleSnake }}/command"
+	zresp "github.com/txbao/goeasy/response"
+)
+
+type Handler struct {
+	app *app.Application
+}
+
+func NewHandler(application *app.Application) *Handler {
+	return &Handler{app: application}
+}
+
+func (h *Handler) Get(c *gin.Context) {
+	id := c.Param("id")
+	agg, err := h.app.Queries().Get(c.Request.Context(), id)
+	if err != nil {
+		zresp.Fail(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	zresp.Success(c, app.ToDTO(agg))
+}
+
+func (h *Handler) Create(c *gin.Context) {
+	id := c.Query("id")
+	if id == "" {
+		zresp.Fail(c, http.StatusBadRequest, "id required")
+		return
+	}
+	if err := h.app.Commands().Create(c.Request.Context(), command.CreateCommand{ID: id}); err != nil {
+		zresp.Fail(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	zresp.Success(c, gin.H{"created": id})
+}

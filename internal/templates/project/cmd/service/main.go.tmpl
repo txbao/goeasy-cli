@@ -1,0 +1,19 @@
+package main
+
+import (
+	"log"
+
+	"github.com/txbao/goeasy/app"
+	"github.com/txbao/goeasy/config"
+
+	"{{ .ModuleName }}/internal/bootstrap"
+)
+
+func main() {
+	cfg := config.MustLoad("configs/config.yaml")
+	application := app.New(cfg)
+	application.RegisterHTTP(bootstrap.RegisterRoutes)
+	if err := application.Run(); err != nil {
+		log.Fatal(err)
+	}
+}

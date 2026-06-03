@@ -1,0 +1,37 @@
+package health
+
+import (
+	"context"
+	"sync"
+
+	domain "{{ .ModuleName }}/internal/domain/health"
+)
+
+type memoryRepository struct {
+	mu   sync.RWMutex
+	data map[string]*domain.Aggregate
+}
+
+func NewMemoryRepository() domain.Repository {
+	return &memoryRepository{data: make(map[string]*domain.Aggregate)}
+}
+
+func (r *memoryRepository) Load(ctx context.Context, name string) (*domain.Aggregate, error) {
+	_ = ctx
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	if agg, ok := r.data[name]; ok {
+		return agg, nil
+	}
+	agg := domain.NewAggregate(name)
+	_ = agg.Refresh(true, "{{ .ProjectName }} initialized")
+	return agg, nil
+}
+
+func (r *memoryRepository) Save(ctx context.Context, agg *domain.Aggregate) error {
+	_ = ctx
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	r.data[agg.Root().Name()] = agg
+	return nil
+}

@@ -1,0 +1,6 @@
+package health
+
+// HealthProbe 对外端口占位（如被其他模块依赖时使用接口，而非具体实现）。
+type HealthProbe interface {
+	IsHealthy() bool
+}

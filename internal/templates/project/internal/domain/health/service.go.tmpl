@@ -1,0 +1,22 @@
+package health
+
+import "context"
+
+// DomainService 领域服务：封装无法放入单一实体的规则。
+type DomainService struct{}
+
+func NewDomainService() *DomainService {
+	return &DomainService{}
+}
+
+// Evaluate 根据聚合状态生成检查结果（业务规则在 Domain 内）。
+func (d *DomainService) Evaluate(_ context.Context, agg *Aggregate) (Status, error) {
+	if agg == nil || agg.Root() == nil {
+		return Status{}, ErrInvalidMessage
+	}
+	st := agg.Status()
+	if st.Message == "" {
+		return Status{}, ErrInvalidMessage
+	}
+	return st, nil
+}

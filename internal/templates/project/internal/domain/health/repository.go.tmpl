@@ -1,0 +1,9 @@
+package health
+
+import "context"
+
+// Repository 聚合仓储接口（领域层定义）。
+type Repository interface {
+	Load(ctx context.Context, name string) (*Aggregate, error)
+	Save(ctx context.Context, agg *Aggregate) error
+}

@@ -1,0 +1,22 @@
+package health
+
+import "time"
+
+// StatusChanged 领域事件（过去式命名）。
+type StatusChanged struct {
+	ServiceName string
+	OK          bool
+	Message     string
+	OccurredAt  time.Time
+}
+
+func NewStatusChanged(name string, st Status) StatusChanged {
+	return StatusChanged{
+		ServiceName: name,
+		OK:          st.OK,
+		Message:     st.Message,
+		OccurredAt:  time.Now(),
+	}
+}
+
+func (e StatusChanged) Name() string { return "health.status_changed" }

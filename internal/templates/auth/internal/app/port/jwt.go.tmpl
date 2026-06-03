@@ -1,0 +1,6 @@
+package port
+
+// TokenIssuer JWT 签发端口（无 User/Role 领域实体）。
+type TokenIssuer interface {
+	Issue(subject string) (string, error)
+}

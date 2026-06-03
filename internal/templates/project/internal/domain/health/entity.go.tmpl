@@ -1,0 +1,45 @@
+package health
+
+// ServiceHealth 服务健康实体（技术示例，含状态变更行为）。
+type ServiceHealth struct {
+	name    string
+	state   State
+	message string
+}
+
+func NewServiceHealth(name string) *ServiceHealth {
+	return &ServiceHealth{
+		name:    name,
+		state:   StateUp,
+		message: "initialized",
+	}
+}
+
+func (s *ServiceHealth) Name() string    { return s.name }
+func (s *ServiceHealth) State() State    { return s.state }
+func (s *ServiceHealth) Message() string { return s.message }
+
+// MarkHealthy 通过行为修改状态（禁止外部直接改字段）。
+func (s *ServiceHealth) MarkHealthy(message string) error {
+	if message == "" {
+		return ErrInvalidMessage
+	}
+	s.state = StateUp
+	s.message = message
+	return nil
+}
+
+// MarkDegraded 标记降级。
+func (s *ServiceHealth) MarkDegraded(message string) error {
+	if message == "" {
+		return ErrInvalidMessage
+	}
+	s.state = StateDegraded
+	s.message = message
+	return nil
+}
+
+// ToStatus 转为对外状态快照。
+func (s *ServiceHealth) ToStatus() Status {
+	return Status{OK: s.state.IsOK(), Message: s.message}
+}

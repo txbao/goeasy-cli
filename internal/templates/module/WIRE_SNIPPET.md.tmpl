@@ -1,0 +1,18 @@
+# {{ .ModulePascal }} 模块装配片段
+
+```go
+{{ .ModuleSnake }}repo := {{ .ModuleSnake }}infra.NewRepository()
+{{ .ModuleSnake }}dom := {{ .ModuleSnake }}domain.NewDomainService()
+{{ .ModuleSnake }}app := {{ .ModuleSnake }}app.NewApplication({{ .ModuleSnake }}repo, {{ .ModuleSnake }}dom)
+{{ .ModuleSnake }}h := {{ .ModuleSnake }}http.NewHandler({{ .ModuleSnake }}app)
+{{ .ModuleSnake }}http.RegisterRoutes(engine.Group("/api/v1"), {{ .ModuleSnake }}h)
+```
+
+import 示例：
+
+```go
+{{ .ModuleSnake }}app "{{ .ModuleName }}/internal/app/{{ .ModuleSnake }}"
+{{ .ModuleSnake }}domain "{{ .ModuleName }}/internal/domain/{{ .ModuleSnake }}"
+{{ .ModuleSnake }}infra "{{ .ModuleName }}/internal/infrastructure/persistence/{{ .ModuleSnake }}"
+{{ .ModuleSnake }}http "{{ .ModuleName }}/internal/interface/http/{{ .ModuleSnake }}"
+```

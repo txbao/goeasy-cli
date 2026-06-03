@@ -1,0 +1,15 @@
+package {{ .EventSnake }}
+
+import "time"
+
+type {{ .EventPascal }} struct {
+	OccurredAt time.Time
+	Payload    map[string]any
+}
+
+func New{{ .EventPascal }}(payload map[string]any) {{ .EventPascal }} {
+	return {{ .EventPascal }}{
+		OccurredAt: time.Now(),
+		Payload:    payload,
+	}
+}

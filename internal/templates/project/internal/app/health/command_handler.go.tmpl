@@ -1,0 +1,21 @@
+package health
+
+import (
+	"context"
+
+	"{{ .ModuleName }}/internal/app/health/command"
+	domain "{{ .ModuleName }}/internal/domain/health"
+)
+
+// CommandHandler 对外暴露写用例。
+type CommandHandler struct {
+	inner *command.Handler
+}
+
+func NewCommandHandler(repo domain.Repository, domainSvc *domain.DomainService) *CommandHandler {
+	return &CommandHandler{inner: command.NewHandler(repo, domainSvc)}
+}
+
+func (h *CommandHandler) Refresh(ctx context.Context, cmd command.RefreshCommand) (domain.Status, error) {
+	return h.inner.Refresh(ctx, cmd)
+}

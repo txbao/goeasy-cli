@@ -1,0 +1,21 @@
+package health
+
+import (
+	domain "{{ .ModuleName }}/internal/domain/health"
+)
+
+// Application 应用层门面（CQRS 编排入口）。
+type Application struct {
+	queries  *QueryHandler
+	commands *CommandHandler
+}
+
+func NewApplication(repo domain.Repository, domainSvc *domain.DomainService) *Application {
+	return &Application{
+		queries:  NewQueryHandler(repo, domainSvc),
+		commands: NewCommandHandler(repo, domainSvc),
+	}
+}
+
+func (a *Application) Queries() *QueryHandler  { return a.queries }
+func (a *Application) Commands() *CommandHandler { return a.commands }

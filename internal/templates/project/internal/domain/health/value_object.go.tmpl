@@ -1,0 +1,24 @@
+package health
+
+// State 健康状态值对象。
+type State int
+
+const (
+	StateUp State = iota + 1
+	StateDegraded
+	StateDown
+)
+
+func (s State) IsOK() bool {
+	return s == StateUp || s == StateDegraded
+}
+
+// Status 健康检查结果快照（VO）。
+type Status struct {
+	OK      bool
+	Message string
+}
+
+func NewStatus(ok bool, message string) Status {
+	return Status{OK: ok, Message: message}
+}

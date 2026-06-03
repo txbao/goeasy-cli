@@ -1,0 +1,6 @@
+package port
+
+// RBACChecker 权限检查端口占位（业务实体留在业务服务）。
+type RBACChecker interface {
+	Allow(subject, resource, action string) (bool, error)
+}

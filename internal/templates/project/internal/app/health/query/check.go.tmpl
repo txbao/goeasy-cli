@@ -1,0 +1,26 @@
+package query
+
+import (
+	"context"
+
+	domain "{{ .ModuleName }}/internal/domain/health"
+)
+
+// Handler 读侧处理器（CQRS Query）。
+type Handler struct {
+	repo      domain.Repository
+	domainSvc *domain.DomainService
+}
+
+func NewHandler(repo domain.Repository, domainSvc *domain.DomainService) *Handler {
+	return &Handler{repo: repo, domainSvc: domainSvc}
+}
+
+// Check 查询健康状态：Load 聚合 → 领域服务评估。
+func (h *Handler) Check(ctx context.Context, serviceName string) (domain.Status, error) {
+	agg, err := h.repo.Load(ctx, serviceName)
+	if err != nil {
+		return domain.Status{}, err
+	}
+	return h.domainSvc.Evaluate(ctx, agg)
+}

@@ -1,0 +1,17 @@
+package {{ .ModuleSnake }}
+
+import (
+	"context"
+
+	domain "{{ .ModuleName }}/internal/domain/{{ .ModuleSnake }}"
+)
+
+type pgRepository struct{}
+
+func NewPGRepository() domain.Repository {
+	return &pgRepository{}
+}
+
+func (r *pgRepository) Save(ctx context.Context, entity domain.{{ .ModulePascal }}) error {
+	return nil
+}

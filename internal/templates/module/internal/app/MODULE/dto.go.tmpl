@@ -1,0 +1,13 @@
+package {{ .ModuleSnake }}
+
+import domain "{{ .ModuleName }}/internal/domain/{{ .ModuleSnake }}"
+
+type {{ .ModulePascal }}DTO struct {
+	ID     string `json:"id"`
+	Active bool   `json:"active"`
+}
+
+func ToDTO(agg *domain.Aggregate) {{ .ModulePascal }}DTO {
+	r := agg.Root()
+	return {{ .ModulePascal }}DTO{ID: r.ID(), Active: r.Active()}
+}

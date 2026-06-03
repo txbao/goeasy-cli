@@ -1,0 +1,21 @@
+package health
+
+import (
+	"context"
+
+	"{{ .ModuleName }}/internal/app/health/query"
+	domain "{{ .ModuleName }}/internal/domain/health"
+)
+
+// QueryHandler 对外暴露读用例。
+type QueryHandler struct {
+	inner *query.Handler
+}
+
+func NewQueryHandler(repo domain.Repository, domainSvc *domain.DomainService) *QueryHandler {
+	return &QueryHandler{inner: query.NewHandler(repo, domainSvc)}
+}
+
+func (h *QueryHandler) Check(ctx context.Context, serviceName string) (domain.Status, error) {
+	return h.inner.Check(ctx, serviceName)
+}

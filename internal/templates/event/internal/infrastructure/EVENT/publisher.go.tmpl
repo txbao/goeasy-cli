@@ -1,0 +1,15 @@
+package {{ .EventSnake }}
+
+import (
+	"context"
+
+	domain "{{ .ModuleName }}/internal/domain/{{ .EventSnake }}"
+)
+
+type Publisher struct{}
+
+func (p *Publisher) Publish(ctx context.Context, evt domain.{{ .EventPascal }}) error {
+	_ = ctx
+	_ = evt
+	return nil
+}

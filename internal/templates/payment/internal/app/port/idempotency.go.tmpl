@@ -1,0 +1,7 @@
+package port
+
+// IdempotencyStore 写操作幂等存储端口。
+type IdempotencyStore interface {
+	Exists(key string) (bool, error)
+	Save(key string) error
+}

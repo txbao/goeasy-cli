@@ -1,0 +1,26 @@
+package health
+
+// Aggregate 健康检查聚合根，维护一致性边界。
+type Aggregate struct {
+	root *ServiceHealth
+}
+
+func NewAggregate(name string) *Aggregate {
+	return &Aggregate{root: NewServiceHealth(name)}
+}
+
+func (a *Aggregate) Root() *ServiceHealth {
+	return a.root
+}
+
+// Refresh 聚合内编排：仅允许通过实体行为更新状态。
+func (a *Aggregate) Refresh(healthy bool, message string) error {
+	if healthy {
+		return a.root.MarkHealthy(message)
+	}
+	return a.root.MarkDegraded(message)
+}
+
+func (a *Aggregate) Status() Status {
+	return a.root.ToStatus()
+}

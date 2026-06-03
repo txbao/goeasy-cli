@@ -1,0 +1,9 @@
+package {{ .ModuleSnake }}
+
+type DomainEvent interface {
+	Name() string
+}
+
+type {{ .ModulePascal }}Changed struct{}
+
+func (e {{ .ModulePascal }}Changed) Name() string { return "{{ .ModuleSnake }}.changed" }

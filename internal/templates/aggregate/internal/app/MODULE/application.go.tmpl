@@ -1,0 +1,20 @@
+package {{ .ModuleSnake }}
+
+import (
+	"context"
+
+	domain "{{ .ModuleName }}/internal/domain/{{ .ModuleSnake }}"
+)
+
+type Application struct {
+	repo domain.Repository
+}
+
+func NewApplication(repo domain.Repository) *Application {
+	return &Application{repo: repo}
+}
+
+func (a *Application) Handle(ctx context.Context, id string) error {
+	_, err := a.repo.FindByID(ctx, id)
+	return err
+}

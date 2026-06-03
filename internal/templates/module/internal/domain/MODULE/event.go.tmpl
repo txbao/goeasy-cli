@@ -1,0 +1,17 @@
+package {{ .ModuleSnake }}
+
+import "time"
+
+// {{ .ModulePascal }}Created 领域事件。
+type {{ .ModulePascal }}Created struct {
+	ID         string
+	OccurredAt time.Time
+}
+
+func New{{ .ModulePascal }}Created(id string) {{ .ModulePascal }}Created {
+	return {{ .ModulePascal }}Created{ID: id, OccurredAt: time.Now()}
+}
+
+func (e {{ .ModulePascal }}Created) Name() string {
+	return "{{ .ModuleSnake }}.created"
+}
