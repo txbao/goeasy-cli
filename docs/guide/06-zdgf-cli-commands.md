@@ -32,6 +32,7 @@ goeasy-cli new mysvc --module github.com/org/mysvc --download=false
 | `--template` | `default` | 见 [08 项目模板](08-templates.md) |
 | `--version` | `v1.0.0` | 远端模板版本（配合 `--download`） |
 | `--download` | `false` | `true` 时尝试拉远端，失败回退内嵌模板 |
+| `--goeasy-module` | `github.com/txbao/goeasy` | 运行时 module（或 `GOEASY_MODULE`） |
 | `--goeasy-replace` | 自动检测 | monorepo 内 replace 本地 goeasy |
 
 未传 `--module` 时 CLI 会输出警告，仍可使用项目名作为 module。

@@ -14,7 +14,8 @@ type Options struct {
 	TemplateVersion string
 	UseDownload     bool
 	OutputDir       string
-	ZdgfReplace     string
+	GoEasyModule    string
+	GoeasyReplace   string
 }
 
 func GenerateProject(opts Options) error {
@@ -39,7 +40,8 @@ func GenerateProject(opts Options) error {
 	}
 	opts.OutputDir = targetDir
 
-	data := toMap(BuildProjectData(opts))
+	projectData := BuildProjectData(opts)
+	data := toMap(projectData)
 	root := resolveTemplateRoot(opts.TemplateName)
 
 	var renderErr error
@@ -58,7 +60,12 @@ func GenerateProject(opts Options) error {
 		return renderErr
 	}
 
+	if err := initGoModule(targetDir, opts.ModuleName, projectData.GoEasyModule, projectData.GoeasyReplace); err != nil {
+		return fmt.Errorf("init go module: %w", err)
+	}
+
 	fmt.Printf("project %s created at %s\n", opts.ProjectName, targetDir)
+	fmt.Println("next: cd", opts.ProjectName, "&& go mod tidy")
 	return nil
 }
 

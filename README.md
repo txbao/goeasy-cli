@@ -24,6 +24,8 @@ go mod tidy
 go run ./cmd/service
 ```
 
+CLI 会在项目目录执行 `go mod init`；依赖由 `go mod tidy` 根据源码 import 解析。
+
 monorepo 内会自动 `replace` 本地 `../goeasy`。
 
 别名：`goeasy-cli init demo ...`
@@ -65,6 +67,7 @@ goeasy-cli upgrade framework
 | `--template` | default | default / monolith / auth / system / payment |
 | `--download` | false | 远端 zip（失败回退 embed） |
 | `--output` | `.` | 输出父目录 |
+| `--goeasy-module` | `github.com/txbao/goeasy` | 运行时 module 路径（或环境变量 `GOEASY_MODULE`） |
 | `--goeasy-replace` | 自动 | 本地 goeasy replace 路径 |
 
 ## 生成目录（DDD Lite）

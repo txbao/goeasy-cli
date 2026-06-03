@@ -27,13 +27,9 @@ framework/
 └── goeasy-cli/demo/ 本地验收工程
 ```
 
-在 `framework` 根目录执行 `goeasy new` 时，CLI 会检测 monorepo 并写入：
+在 `framework` 根目录执行 `goeasy new` 时，CLI 会检测 monorepo 并执行 `go mod edit -replace`（默认模块路径 `github.com/txbao/goeasy`，可用 `--goeasy-module` 定制）。
 
-```text
-replace github.com/txbao/goeasy => ../goeasy
-```
-
-（实际相对路径以生成时检测结果为准。）
+（实际 replace 目标路径以生成时检测结果为准，多为绝对路径。）
 
 也可手动指定：
 

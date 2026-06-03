@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"{{ .ModuleName }}/internal/app/{{ .ModuleSnake }}/command"
-	zresp "github.com/txbao/goeasy/response"
+	zresp "{{ .GoEasyModule }}/response"
 )
 
 func (h *Handler) List(c *gin.Context) {

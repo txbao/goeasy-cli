@@ -46,17 +46,13 @@ goeasy version
 
 ## 业务项目引用 goeasy 运行时
 
-生成项目的 `go.mod` 会包含：
+创建项目时 CLI 会执行 `go mod init <你的 --module>`；在 monorepo 内还会自动执行：
 
 ```text
-require github.com/txbao/goeasy v0.2.0
+go mod edit -replace=github.com/txbao/goeasy=<本地 goeasy 路径>
 ```
 
-在 monorepo 内开发时，CLI 会自动添加：
-
-```text
-replace github.com/txbao/goeasy => <本地 goeasy 路径>
-```
+进入项目目录后执行 `go mod tidy`，会根据源码 import 写入 `require`（默认运行时模块为 `github.com/txbao/goeasy`，可通过 `--goeasy-module` 或环境变量 `GOEASY_MODULE` 覆盖）。
 
 详见 [09 Monorepo 与 Module](09-monorepo-and-modules.md)。
 

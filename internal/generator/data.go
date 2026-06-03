@@ -7,14 +7,12 @@ import (
 	"github.com/txbao/goeasy-cli/internal/utils"
 )
 
-const DefaultZdgfModule = "github.com/txbao/goeasy"
-
 type TemplateData struct {
 	ProjectName   string
 	ModuleName    string
 	ServiceName   string
-	ZdgfModule    string
-	ZdgfReplace   string
+	GoEasyModule  string
+	GoeasyReplace string
 	TemplateName  string
 	TemplateLabel string
 	ModuleSnake   string
@@ -23,18 +21,35 @@ type TemplateData struct {
 	EventPascal   string
 }
 
+func resolveGoEasyModule(opts Options) string {
+	if opts.GoEasyModule != "" {
+		return opts.GoEasyModule
+	}
+	if v := os.Getenv("GOEASY_MODULE"); v != "" {
+		return v
+	}
+	return DefaultGoEasyModule
+}
+
+func currentGoEasyModule() string {
+	if v := os.Getenv("GOEASY_MODULE"); v != "" {
+		return v
+	}
+	return DefaultGoEasyModule
+}
+
 func BuildProjectData(opts Options) TemplateData {
 	label := templateLabel(opts.TemplateName)
-	goeasyReplace := opts.ZdgfReplace
+	goeasyReplace := opts.GoeasyReplace
 	if goeasyReplace == "" {
-		goeasyReplace = detectZdgfReplace(opts.OutputDir)
+		goeasyReplace = detectGoeasyReplace(opts.OutputDir)
 	}
 	return TemplateData{
 		ProjectName:   opts.ProjectName,
 		ModuleName:    opts.ModuleName,
 		ServiceName:   defaultString(opts.ServiceName, "service"),
-		ZdgfModule:    DefaultZdgfModule,
-		ZdgfReplace:   goeasyReplace,
+		GoEasyModule:  resolveGoEasyModule(opts),
+		GoeasyReplace: goeasyReplace,
 		TemplateName:  opts.TemplateName,
 		TemplateLabel: label,
 	}
@@ -46,15 +61,17 @@ func BuildModuleData(moduleName, projectModule string) TemplateData {
 		ModuleName:   projectModule,
 		ModuleSnake:  snake,
 		ModulePascal: utils.ToPascal(moduleName),
+		GoEasyModule: currentGoEasyModule(),
 	}
 }
 
 func BuildEventData(eventName, projectModule string) TemplateData {
 	snake := utils.ToSnake(eventName)
 	return TemplateData{
-		ModuleName:  projectModule,
-		EventSnake:  snake,
-		EventPascal: utils.ToPascal(eventName),
+		ModuleName:   projectModule,
+		EventSnake:   snake,
+		EventPascal:  utils.ToPascal(eventName),
+		GoEasyModule: currentGoEasyModule(),
 	}
 }
 
@@ -84,7 +101,7 @@ func resolveTemplateRoot(name string) string {
 	}
 }
 
-func detectZdgfReplace(outputDir string) string {
+func detectGoeasyReplace(outputDir string) string {
 	candidates := []string{
 		filepath.Join(outputDir, "..", "goeasy"),
 		filepath.Join(outputDir, "..", "..", "goeasy"),
@@ -114,8 +131,8 @@ func toMap(d TemplateData) map[string]any {
 		"ProjectName":   d.ProjectName,
 		"ModuleName":    d.ModuleName,
 		"ServiceName":   d.ServiceName,
-		"ZdgfModule":    d.ZdgfModule,
-		"ZdgfReplace":   d.ZdgfReplace,
+		"GoEasyModule":  d.GoEasyModule,
+		"GoeasyReplace": d.GoeasyReplace,
 		"TemplateName":  d.TemplateName,
 		"TemplateLabel": d.TemplateLabel,
 		"ModuleSnake":   d.ModuleSnake,

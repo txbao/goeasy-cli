@@ -7,7 +7,7 @@ import (
 
 	app "{{ .ModuleName }}/internal/app/{{ .ModuleSnake }}"
 	"{{ .ModuleName }}/internal/app/{{ .ModuleSnake }}/command"
-	zresp "github.com/txbao/goeasy/response"
+	zresp "{{ .GoEasyModule }}/response"
 )
 
 type Handler struct {

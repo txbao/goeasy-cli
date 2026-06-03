@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/txbao/goeasy-cli/internal/generator"
+
 	"github.com/spf13/cobra"
 )
 
@@ -44,7 +46,7 @@ var upgradeFrameworkCmd = &cobra.Command{
 			return err
 		}
 		for _, line := range strings.Split(string(b), "\n") {
-			if strings.Contains(line, "github.com/txbao/goeasy") {
+			if strings.Contains(line, generator.DefaultGoEasyModule) {
 				fmt.Println(strings.TrimSpace(line))
 				fmt.Println("Update version in go.mod, then: go mod tidy")
 				return nil

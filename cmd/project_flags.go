@@ -12,6 +12,7 @@ var (
 	templateVersion string
 	useDownload     bool
 	outputDir       string
+	goeasyModule    string
 	goeasyReplace   string
 )
 
@@ -21,6 +22,7 @@ func bindProjectFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVar(&templateVersion, "version", "v1.0.0", "Remote template version")
 	cmd.Flags().BoolVar(&useDownload, "download", false, "Download template from remote (fallback to embed)")
 	cmd.Flags().StringVar(&outputDir, "output", ".", "Output parent directory")
+	cmd.Flags().StringVar(&goeasyModule, "goeasy-module", "", "Go module path for goeasy runtime (default: "+generator.DefaultGoEasyModule+")")
 	cmd.Flags().StringVar(&goeasyReplace, "goeasy-replace", "", "replace path for local goeasy module")
 }
 
@@ -34,6 +36,7 @@ func runInitProject(cmd *cobra.Command, args []string) error {
 		TemplateVersion: templateVersion,
 		UseDownload:     useDownload,
 		OutputDir:       parent,
-		ZdgfReplace:     goeasyReplace,
+		GoEasyModule:    goeasyModule,
+		GoeasyReplace:   goeasyReplace,
 	})
 }
