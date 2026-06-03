@@ -24,7 +24,7 @@ var upgradeTemplateCmd = &cobra.Command{
 	Use:   "template",
 	Short: "Show embedded template upgrade guidance",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Embedded scaffold templates ship with goesy-cli.")
+		fmt.Println("Embedded scaffold templates ship with goeasy-cli.")
 		fmt.Println("Re-install CLI: go install github.com/txbao/goeasy-cli@latest")
 		fmt.Println("Manual merge recommended for customized project files.")
 	},
@@ -32,7 +32,7 @@ var upgradeTemplateCmd = &cobra.Command{
 
 var upgradeFrameworkCmd = &cobra.Command{
 	Use:   "framework",
-	Short: "Show goesy module version in go.mod",
+	Short: "Show goeasy module version in go.mod",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		dir := "."
 		if len(args) > 0 {
@@ -50,7 +50,7 @@ var upgradeFrameworkCmd = &cobra.Command{
 				return nil
 			}
 		}
-		fmt.Println("goesy module not found in go.mod (optional for generated projects)")
+		fmt.Println("goeasy module not found in go.mod (optional for generated projects)")
 		return nil
 	},
 }

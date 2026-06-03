@@ -10,7 +10,7 @@ import (
 var (
 	version = "v0.2.0"
 	rootCmd = &cobra.Command{
-		Use:   "goesy",
+		Use:   "goeasy",
 		Short: "GoEasy DDD Lite scaffold CLI",
 	}
 )

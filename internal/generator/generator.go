@@ -44,7 +44,7 @@ func GenerateProject(opts Options) error {
 
 	var renderErr error
 	if opts.UseDownload {
-		tmpDir := filepath.Join(os.TempDir(), "goesy-"+opts.TemplateVersion)
+		tmpDir := filepath.Join(os.TempDir(), "goeasy-"+opts.TemplateVersion)
 		if err := DownloadTemplate(opts.TemplateName, opts.TemplateVersion, tmpDir); err == nil {
 			renderErr = RenderDir(tmpDir, targetDir, data)
 		} else {

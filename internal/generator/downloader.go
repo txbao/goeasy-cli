@@ -27,7 +27,7 @@ func DownloadTemplate(templateName, version, targetDir string) error {
 		return fmt.Errorf("download failed: %s", resp.Status)
 	}
 
-	tmpZip := filepath.Join(os.TempDir(), "goesy-"+templateName+"-"+version+".zip")
+	tmpZip := filepath.Join(os.TempDir(), "goeasy-"+templateName+"-"+version+".zip")
 	f, err := os.Create(tmpZip)
 	if err != nil {
 		return err

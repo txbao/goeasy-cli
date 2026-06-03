@@ -1,4 +1,4 @@
-# goesy-cli
+# goeasy-cli
 
 GoEasy DDD Lite 官方脚手架（开发期工具，不参与运行时）。
 
@@ -7,31 +7,34 @@ GoEasy DDD Lite 官方脚手架（开发期工具，不参与运行时）。
 ## 安装
 
 ```bat
+# 1. 安装 goeasy-cli（代码生成工具）
 go install github.com/txbao/goeasy-cli@latest
+
+
 ```
 
 ## 创建项目
 
-生成项目直接依赖 **goesy 运行时**：
+生成项目直接依赖 **goeasy 运行时**：
 
 ```bat
-goesy new demo3 --module github.com/demo/demo3 --download=false
-cd demo3
+goeasy-cli new demo --module github.com/demo/demo --download=false
+cd demo
 go mod tidy
 go run ./cmd/service
 ```
 
-monorepo 内会自动 `replace` 本地 `../goesy`。
+monorepo 内会自动 `replace` 本地 `../goeasy`。
 
-别名：`goesy init demo ...`
+别名：`goeasy-cli init demo ...`
 
 ### 模板变体
 
 ```bat
-goesy new auth-svc --template auth --module github.com/demo/auth
-goesy new pay-svc --template payment --module github.com/demo/pay
-goesy new app --template monolith
-goesy new sys-svc --template system
+goeasy-cli new auth-svc --template auth --module github.com/demo/auth
+goeasy-cli new pay-svc --template payment --module github.com/demo/pay
+goeasy-cli new app --template monolith
+goeasy-cli new sys-svc --template system
 ```
 
 ## 生成模块
@@ -39,19 +42,19 @@ goesy new sys-svc --template system
 在项目根目录执行：
 
 ```bat
-goesy add module user
-goesy add crud user --force
-goesy add repository order
-goesy add proto user
-goesy add event user-created
-goesy add aggregate order
+goeasy-cli add module user
+goeasy-cli add crud user --force
+goeasy-cli add repository order
+goeasy-cli add proto user
+goeasy-cli add event user-created
+goeasy-cli add aggregate order
 ```
 
 ## 升级
 
 ```bat
-goesy upgrade template
-goesy upgrade framework
+goeasy-cli upgrade template
+goeasy-cli upgrade framework
 ```
 
 ## Flags（new/init）
@@ -62,7 +65,7 @@ goesy upgrade framework
 | `--template` | default | default / monolith / auth / system / payment |
 | `--download` | false | 远端 zip（失败回退 embed） |
 | `--output` | `.` | 输出父目录 |
-| `--goesy-replace` | 自动 | 本地 goesy replace 路径 |
+| `--goeasy-replace` | 自动 | 本地 goeasy replace 路径 |
 
 ## 生成目录（DDD Lite）
 

@@ -25,16 +25,16 @@ type TemplateData struct {
 
 func BuildProjectData(opts Options) TemplateData {
 	label := templateLabel(opts.TemplateName)
-	goesyReplace := opts.ZdgfReplace
-	if goesyReplace == "" {
-		goesyReplace = detectZdgfReplace(opts.OutputDir)
+	goeasyReplace := opts.ZdgfReplace
+	if goeasyReplace == "" {
+		goeasyReplace = detectZdgfReplace(opts.OutputDir)
 	}
 	return TemplateData{
 		ProjectName:   opts.ProjectName,
 		ModuleName:    opts.ModuleName,
 		ServiceName:   defaultString(opts.ServiceName, "service"),
 		ZdgfModule:    DefaultZdgfModule,
-		ZdgfReplace:   goesyReplace,
+		ZdgfReplace:   goeasyReplace,
 		TemplateName:  opts.TemplateName,
 		TemplateLabel: label,
 	}
@@ -86,9 +86,9 @@ func resolveTemplateRoot(name string) string {
 
 func detectZdgfReplace(outputDir string) string {
 	candidates := []string{
-		filepath.Join(outputDir, "..", "goesy"),
-		filepath.Join(outputDir, "..", "..", "goesy"),
-		filepath.Join(outputDir, "goesy"),
+		filepath.Join(outputDir, "..", "goeasy"),
+		filepath.Join(outputDir, "..", "..", "goeasy"),
+		filepath.Join(outputDir, "goeasy"),
 	}
 	for _, c := range candidates {
 		if st, err := os.Stat(filepath.Join(c, "go.mod")); err == nil && !st.IsDir() {
