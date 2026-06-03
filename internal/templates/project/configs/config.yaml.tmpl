@@ -1,29 +1,42 @@
+# 应用基础信息
 app_name: {{ .ProjectName }}
 env: dev
+
+# HTTP 服务监听（interface/http 路由挂载在 goeasy/httpx）
 http:
   host: 0.0.0.0
   port: 8080
 
+# 数据库（基础设施下沉 goeasy/database；业务 SQL 在 migrations/）
 database:
   enabled: false
-  driver: postgres
+  orm: sqlx          # 默认 sqlx + squirrel 构建 SQL；扩展: gorm | ent
+  driver: postgres   # postgres | mysql
   dsn: ""
+  max_open: 10
+  max_idle: 5
 
+# Redis 缓存（goeasy/cache；enabled 时 main 启动会初始化连接）
 redis:
   enabled: false
-  addr: ""
+  addr: "127.0.0.1:6379"
+  password: ""       # 无密码留空
+  db: 0              # 逻辑库 0-15
 
+# 消息队列（goeasy/mq）
 mq:
   enabled: false
-  type: nsq
+  type: nsq          # nsq
   addr: ""
 
+# gRPC 服务端/客户端（goeasy/grpcx）
 grpc:
   enabled: false
   addr: ""
   timeout_sec: 5
   max_retries: 2
 
+# 微服务治理（goeasy/breaker、limiter、retry）
 governance:
   breaker:
     enabled: false
@@ -36,6 +49,7 @@ governance:
     max_retries: 3
     backoff_ms: 100
 
+# 可观测性（goeasy/trace、metrics、audit、health）
 observability:
   trace:
     enabled: true
@@ -48,6 +62,7 @@ observability:
     enabled: true
     path: /healthz
 
+# 企业公共组件（无业务规则；JWT/Casbin/ID 生成）
 enterprise:
   jwt:
     enabled: false
@@ -57,4 +72,4 @@ enterprise:
   casbin:
     enabled: false
   idgen:
-    mode: uuid
+    mode: uuid       # uuid | snowflake

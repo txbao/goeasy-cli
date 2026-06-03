@@ -17,6 +17,13 @@ CLI 二进制名为 **`goeasy`**（`go install` 后）。本地编译产物为 *
 | `goeasy-cli add aggregate <name>` | 聚合骨架（建议优先用 `add module`） |
 | `goeasy-cli upgrade template` | 内嵌模板升级说明 |
 | `goeasy-cli upgrade framework` | 查看 go.mod 中 goeasy 版本 |
+| `goeasy-cli migrate up` | 应用 `migrations/*.up.sql` |
+| `goeasy-cli migrate down --steps <n>` | 回滚最近 n 个迁移 |
+| `goeasy-cli migrate status` | 查看迁移状态 |
+| `goeasy-cli migrate version` | 查看当前迁移版本 |
+| `goeasy-cli migrate goto <version>` | 迁移到指定版本 |
+| `goeasy-cli migrate force <version>` | 强制设置版本，不执行 SQL |
+| `goeasy-cli migrate create <name>` | 新建 up/down SQL 对 |
 
 ## new / init
 
@@ -55,6 +62,26 @@ goeasy-cli add module order --dir .
 
 1. 在 `bootstrap/wire.go` 手工装配新模块（CLI 不自动改 wire，避免冲突）
 2. `go mod tidy`
+
+## migrate（在项目根目录）
+
+```bat
+goeasy-cli migrate up -f configs/config.yaml
+goeasy-cli migrate status
+goeasy-cli migrate version
+goeasy-cli migrate goto 3
+ngoeasy-cli migrate force 3
+goeasy-cli migrate down --steps 1
+goeasy-cli migrate create add_users_table
+```
+
+| 参数 | 默认 | 说明 |
+|------|------|------|
+| `--dir` | `.` | 项目根 |
+| `-f` / `--config` | `configs/config.yaml` | 读取 `database.dsn` |
+| `--migrations` | `migrations` | SQL 目录 |
+
+需 `database.enabled: true` 且 `driver: postgres`。版本表为 `_sqlx_migrations`。
 
 ## upgrade
 

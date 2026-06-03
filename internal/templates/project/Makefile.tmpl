@@ -1,10 +1,22 @@
-.PHONY: run build tidy
+.PHONY: run build tidy migrate-up migrate-down migrate-status
+
+CONFIG ?= configs/config.yaml
+MIGRATIONS ?= migrations
 
 run:
-	go run ./cmd/service
+	go run ./cmd/service -f $(CONFIG)
 
 build:
 	go build -o bin/service ./cmd/service
 
 tidy:
 	go mod tidy
+
+migrate-up:
+	goeasy migrate up --dir . -f $(CONFIG) --migrations $(MIGRATIONS)
+
+migrate-down:
+	goeasy migrate down --dir . -f $(CONFIG) --migrations $(MIGRATIONS)
+
+migrate-status:
+	goeasy migrate status --dir . -f $(CONFIG) --migrations $(MIGRATIONS)

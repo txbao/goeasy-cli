@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"log"
 
 	"{{ .GoEasyModule }}/app"
@@ -10,7 +11,10 @@ import (
 )
 
 func main() {
-	cfg := config.MustLoad("configs/config.yaml")
+	configPath := flag.String("f", "configs/config.yaml", "配置文件路径")
+	flag.Parse()
+
+	cfg := config.MustLoad(*configPath)
 	application := app.New(cfg)
 	application.RegisterHTTP(bootstrap.RegisterRoutes)
 	if err := application.Run(); err != nil {

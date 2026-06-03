@@ -24,6 +24,14 @@ docs/  migrations/  test/
 ```bat
 go mod tidy
 go run ./cmd/service
+go run ./cmd/service -f configs/config.example.yaml
+```
+
+数据库迁移（需配置 `database.enabled` 与 `database.dsn`）：
+
+```bat
+goeasy migrate up -f configs/config.yaml
+make migrate-up
 ```
 
 建议创建时指定 Go module：

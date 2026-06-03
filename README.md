@@ -22,6 +22,8 @@ goeasy-cli new demo --module github.com/demo/demo --download=false
 cd demo
 go mod tidy
 go run ./cmd/service
+go run ./cmd/service -f configs/config.example.yaml
+goeasy-cli migrate up -f configs/config.yaml
 ```
 
 CLI 会在项目目录执行 `go mod init`；依赖由 `go mod tidy` 根据源码 import 解析。

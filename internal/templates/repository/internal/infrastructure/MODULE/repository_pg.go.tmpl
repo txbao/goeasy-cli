@@ -6,6 +6,7 @@ import (
 	domain "{{ .ModuleName }}/internal/domain/{{ .ModuleSnake }}"
 )
 
+// pgRepository 基于 sqlx + squirrel 实现 domain.Repository（database.orm: sqlx）。
 type pgRepository struct{}
 
 func NewPGRepository() domain.Repository {
