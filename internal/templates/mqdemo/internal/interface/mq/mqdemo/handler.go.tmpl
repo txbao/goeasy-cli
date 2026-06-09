@@ -1,0 +1,44 @@
+package mqdemo
+
+import (
+	"context"
+	"log"
+
+	"{{ .GoEasyModule }}/config"
+	goeasymq "{{ .GoEasyModule }}/mq"
+
+	appmqdemo "{{ .ModuleName }}/internal/app/mqdemo"
+	"{{ .ModuleName }}/internal/app/mqdemo/command"
+)
+
+// Handler NSQ 消息适配层。
+type Handler struct {
+	app   *appmqdemo.Application
+	mqLog config.MQLogCfg
+}
+
+func NewHandler(app *appmqdemo.Application, mqLog config.MQLogCfg) *Handler {
+	return &Handler{app: app, mqLog: mqLog}
+}
+
+func (h *Handler) HandleRaw(ctx context.Context, body []byte) error {
+	env, err := goeasymq.UnmarshalEnvelope(body)
+	if err != nil {
+		return err
+	}
+	result, err := h.app.Commands().Consume(ctx, command.ConsumeCommand{
+		EventID:   env.EventID,
+		EventType: env.EventType,
+		TraceID:   env.TraceID,
+		Payload:   env.Payload,
+	})
+	if err != nil {
+		return err
+	}
+	if result.Duplicate {
+		log.Printf("mqdemo: skip duplicate %v", goeasymq.PayloadLogFields(env, h.mqLog))
+		return nil
+	}
+	log.Printf("mqdemo: consumed %v", goeasymq.PayloadLogFields(env, h.mqLog))
+	return nil
+}

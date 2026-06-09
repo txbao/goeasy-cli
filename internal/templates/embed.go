@@ -4,5 +4,5 @@ import "embed"
 
 // AllTemplates 内嵌全部脚手架模板（项目 + 模块 + 变体）。
 //
-//go:embed project monolith auth system payment module crud proto repository event aggregate
+//go:embed project monolith auth system payment module crud proto repository event aggregate grpc mqdemo rpcdemo
 var AllTemplates embed.FS

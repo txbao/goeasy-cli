@@ -1,0 +1,23 @@
+package {{ .HTTPPackage }}
+
+import (
+	domain "{{ .ModuleName }}/internal/domain/{{ .Domain }}/{{ .Resource }}"
+	app "{{ .ModuleName }}/internal/app/{{ .Domain }}/{{ .Resource }}"
+)
+
+// ResponseDTO {{ .HTTPClient }} 端 API 响应（与 app 层 DTO 分离）。
+type ResponseDTO struct {
+	ID string `json:"id"`
+}
+
+func ToResponse(agg *domain.Aggregate) ResponseDTO {
+	d := app.ToDTO(agg)
+	return ToResponseDTO(&d)
+}
+
+func ToResponseDTO(d *app.{{ .ModulePascal }}DTO) ResponseDTO {
+	if d == nil {
+		return ResponseDTO{}
+	}
+	return ResponseDTO{ID: d.ID}
+}

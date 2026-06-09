@@ -11,11 +11,22 @@
 | 快速体验 | [03 60 秒上手](03-quickstart-60s.md) | 10 分钟 |
 | 读懂工程 | [04 项目结构](04-project-structure.md) | 20 分钟 |
 | 运行时 | [05 goeasy 运行时](05-goeasy-runtime.md) | 25 分钟 |
+| 实体缓存 | [runtime/实体缓存](../runtime/entity-cache.md) | 15 分钟 |
+| HTTP 中间件 | [runtime/HTTP 中间件](../runtime/http-middleware.md) | 15 分钟 |
+| gRPC 运行时 | [runtime/gRPC 与服务发现](../runtime/grpc-discovery.md) | 20 分钟 |
 | 脚手架命令 | [06 goeasy-cli 命令](06-goeasy-cli-commands.md) | 20 分钟 |
 | DDD 实践 | [07 DDD Lite 实践](07-ddd-lite-practices.md) | 30 分钟 |
+| 应用层风格 | [18 app_style](18-app-style.md) | 10 分钟 |
 | 模板变体 | [08 项目模板](08-templates.md) | 15 分钟 |
 | 工程化 | [09 Monorepo 与 Module](09-monorepo-and-modules.md) | 15 分钟 |
 | 架构对照 | [10 架构对照](10-architecture-overview.md) | 15 分钟 |
+| 库表契约 | [10 OpenAPI/Proto](10-db-openapi-proto.md) | 15 分钟 |
+| 契约驱动 | [15 契约驱动生成](15-contract-first.md) | 20 分钟 |
+| gRPC 项目集成 | [11 gRPC 项目集成](11-grpc-internal.md) | 20 分钟 |
+| 跨服务 gRPC | [12 跨服务 gRPC](12-grpc-cross-service.md) | 15 分钟 |
+| RPC Gateway | [14 RPC Gateway 接入](14-rpc-gateway-integration.md) | 20 分钟 |
+| 运行时能力 | [16 治理/缓存/观测/安全](16-runtime-capabilities.md) | 30 分钟 |
+| 观测栈 | [17 Prometheus/Loki/Tempo/Grafana](17-observability-stack.md) | 20 分钟 |
 
 ## 附录
 
@@ -32,7 +43,7 @@
 
 ```text
 framework/
-├── goeasy/          运行时框架
-├── goeasy-cli/      脚手架 CLI
-└── docs/guide/    本教程
+├── goeasy/              运行时框架（docs/ 仅跳转桩）
+├── goeasy-cli/          脚手架 CLI
+└── goeasy-cli/docs/     本教程 + runtime/（GitBook 同步源）
 ```

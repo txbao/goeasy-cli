@@ -17,8 +17,16 @@ type TemplateData struct {
 	TemplateLabel string
 	ModuleSnake   string
 	ModulePascal  string
+	ModuleAlias   string
 	EventSnake    string
 	EventPascal   string
+	RemoteService string // add rpcdemo：对端逻辑服务名（app_name）
+	ProtoModule   string // add rpcdemo：对端 proto 模块名
+	ProtoPascal   string
+	ProtoPbAlias  string
+	ProtoImportPath string
+	GatewayName   string
+	ViewName      string
 }
 
 func resolveGoEasyModule(opts Options) string {
@@ -61,6 +69,7 @@ func BuildModuleData(moduleName, projectModule string) TemplateData {
 		ModuleName:   projectModule,
 		ModuleSnake:  snake,
 		ModulePascal: utils.ToPascal(moduleName),
+		ModuleAlias:  utils.ToIdent(moduleName),
 		GoEasyModule: currentGoEasyModule(),
 	}
 }
@@ -137,7 +146,15 @@ func toMap(d TemplateData) map[string]any {
 		"TemplateLabel": d.TemplateLabel,
 		"ModuleSnake":   d.ModuleSnake,
 		"ModulePascal":  d.ModulePascal,
+		"ModuleAlias":   d.ModuleAlias,
 		"EventSnake":    d.EventSnake,
 		"EventPascal":   d.EventPascal,
+		"RemoteService":   d.RemoteService,
+		"ProtoModule":     d.ProtoModule,
+		"ProtoPascal":     d.ProtoPascal,
+		"ProtoPbAlias":    d.ProtoPbAlias,
+		"ProtoImportPath": d.ProtoImportPath,
+		"GatewayName":     d.GatewayName,
+		"ViewName":        d.ViewName,
 	}
 }

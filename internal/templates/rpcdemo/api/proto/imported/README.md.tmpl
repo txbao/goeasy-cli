@@ -1,0 +1,14 @@
+# 导入的 gRPC 契约
+
+跨服务调用前，从对端拉取 proto 并生成 pb：
+
+```bat
+goeasy-cli add rpcdemo --remote {{ .RemoteService }} --from-url <path-or-url-to/sys_roles.proto>
+REM --proto 可从 --from-url 文件名自动推断；或分步 gen proto --from-url
+```
+
+然后执行：
+
+```bat
+goeasy-cli add rpcdemo --remote user
+```

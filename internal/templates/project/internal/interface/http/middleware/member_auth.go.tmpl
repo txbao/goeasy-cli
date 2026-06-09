@@ -1,0 +1,13 @@
+package middleware
+
+import (
+	"github.com/gin-gonic/gin"
+
+	goeasyapp "{{ .GoEasyModule }}/app"
+	zhttpx "{{ .GoEasyModule }}/httpx"
+)
+
+// MemberAuth H5 会员 JWT（enterprise.member_jwt.enabled）。
+func MemberAuth(infra goeasyapp.HTTPInfra) gin.HandlerFunc {
+	return zhttpx.RequireJWT(infra.MemberJWT, "Authorization")
+}

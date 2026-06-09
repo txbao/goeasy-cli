@@ -1,0 +1,27 @@
+package mqdemo
+
+import (
+	"encoding/json"
+	"time"
+)
+
+const DefaultTopic = "demo.message.published"
+
+// MessagePublished 领域事件（过去式命名）。
+type MessagePublished struct {
+	EventID   string
+	EventType string
+	Payload   json.RawMessage
+	At        time.Time
+}
+
+func NewMessagePublished(eventID, eventType string, payload json.RawMessage) MessagePublished {
+	return MessagePublished{
+		EventID:   eventID,
+		EventType: eventType,
+		Payload:   payload,
+		At:        time.Now().UTC(),
+	}
+}
+
+func (e MessagePublished) Name() string { return DefaultTopic }

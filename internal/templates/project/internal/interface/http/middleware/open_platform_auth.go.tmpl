@@ -1,0 +1,13 @@
+package middleware
+
+import (
+	"github.com/gin-gonic/gin"
+
+	goeasyapp "{{ .GoEasyModule }}/app"
+	zhttpx "{{ .GoEasyModule }}/httpx"
+)
+
+// OpenPlatformAuth 开放平台 RSA2 验签（enterprise.api_sign.enabled）。
+func OpenPlatformAuth(infra goeasyapp.HTTPInfra) gin.HandlerFunc {
+	return zhttpx.RequireAPISign(infra.APISign)
+}

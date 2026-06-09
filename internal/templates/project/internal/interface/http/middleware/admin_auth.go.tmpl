@@ -1,0 +1,13 @@
+package middleware
+
+import (
+	"github.com/gin-gonic/gin"
+
+	goeasyapp "{{ .GoEasyModule }}/app"
+	zhttpx "{{ .GoEasyModule }}/httpx"
+)
+
+// AdminAuth 管理后台 JWT（enterprise.jwt.enabled）。
+func AdminAuth(infra goeasyapp.HTTPInfra) gin.HandlerFunc {
+	return zhttpx.RequireJWT(infra.JWT, "Authorization")
+}

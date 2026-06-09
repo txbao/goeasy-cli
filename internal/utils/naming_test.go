@@ -13,3 +13,9 @@ func TestToSnake(t *testing.T) {
 		t.Fatalf("got %s", got)
 	}
 }
+
+func TestToIdent(t *testing.T) {
+	if got := ToIdent("sys_roles"); got != "sysroles" {
+		t.Fatalf("got %s", got)
+	}
+}

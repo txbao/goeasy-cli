@@ -1,0 +1,8 @@
+package mqdemo
+
+import "errors"
+
+var (
+	ErrEmptyEventType = errors.New("event type is required")
+	ErrInvalidPayload = errors.New("payload is not valid JSON")
+)

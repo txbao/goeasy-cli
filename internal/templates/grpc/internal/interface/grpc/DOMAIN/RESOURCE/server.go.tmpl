@@ -1,0 +1,26 @@
+package {{ .Resource }}
+
+import (
+	zgrpcx "{{ .GoEasyModule }}/grpcx"
+
+	{{ .ModuleAlias }}app "{{ .ModuleName }}/internal/app/{{ .Domain }}/{{ .Resource }}"
+	pb "{{ .ModuleName }}/api/proto/gen/{{ .ModuleSnake }}"
+)
+
+// Server 实现 api/proto/{{ .ModuleSnake }}.proto 中的 {{ .ModulePascal }}ServiceServer。
+type Server struct {
+	pb.Unimplemented{{ .ModulePascal }}ServiceServer
+	app *{{ .ModuleAlias }}app.Application
+}
+
+func NewServer(app *{{ .ModuleAlias }}app.Application) *Server {
+	return &Server{app: app}
+}
+
+// Register 将本模块 gRPC 服务注册到 goeasy Server（由 bootstrap/register_{{ .ModuleSnake }}_grpc.go 调用）。
+func Register(s *zgrpcx.Server, app *{{ .ModuleAlias }}app.Application) {
+	if s == nil || s.GRPC() == nil || app == nil {
+		return
+	}
+	pb.Register{{ .ModulePascal }}ServiceServer(s.GRPC(), NewServer(app))
+}

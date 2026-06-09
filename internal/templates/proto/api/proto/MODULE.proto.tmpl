@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package {{ .ModuleSnake }};
 
-option go_package = "{{ .ModuleName }}/api/proto/{{ .ModuleSnake }};{{ .ModuleSnake }}pb";
+option go_package = "{{ .ModuleName }}/api/proto/gen/{{ .ModuleSnake }};{{ .ModuleSnake }}pb";
 
 service {{ .ModulePascal }}Service {
   rpc Get{{ .ModulePascal }} (Get{{ .ModulePascal }}Request) returns (Get{{ .ModulePascal }}Response);

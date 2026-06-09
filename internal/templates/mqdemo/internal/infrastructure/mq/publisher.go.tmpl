@@ -1,0 +1,47 @@
+package mqinfra
+
+import (
+	"context"
+	"encoding/json"
+
+	goeasymq "{{ .GoEasyModule }}/mq"
+
+	appmqdemo "{{ .ModuleName }}/internal/app/mqdemo"
+	domain "{{ .ModuleName }}/internal/domain/mqdemo"
+)
+
+// Publisher 实现 app/mqdemo.MessagePublisher。
+type Publisher struct {
+	mq     goeasymq.MQ
+	source string
+}
+
+func NewPublisher(mqClient goeasymq.MQ, source string) *Publisher {
+	if source == "" {
+		source = "mqdemo"
+	}
+	return &Publisher{mq: mqClient, source: source}
+}
+
+func (p *Publisher) Publish(ctx context.Context, eventType string, payload json.RawMessage) (appmqdemo.PublishResult, error) {
+	if eventType == "" {
+		eventType = domain.DefaultTopic
+	}
+	topic := domain.DefaultTopic
+	env, err := goeasymq.NewEnvelope(eventType, p.source, "", payload)
+	if err != nil {
+		return appmqdemo.PublishResult{}, err
+	}
+	body, err := env.Marshal()
+	if err != nil {
+		return appmqdemo.PublishResult{}, err
+	}
+	if err := p.mq.Publish(ctx, topic, body); err != nil {
+		return appmqdemo.PublishResult{}, err
+	}
+	return appmqdemo.PublishResult{
+		EventID:   env.EventID,
+		EventType: env.EventType,
+		Topic:     topic,
+	}, nil
+}

@@ -1,0 +1,12 @@
+package {{ .HTTPPackage }}
+
+import "github.com/gin-gonic/gin"
+
+func RegisterCRUDRoutes(r *gin.RouterGroup, h *Handler) {
+	g := r.Group("{{ .HTTPRoutePrefix }}")
+	g.GET("", h.List)
+{{- if .ClientFullCRUD }}
+	g.PUT("/:id", h.Update)
+	g.DELETE("/:id", h.Delete)
+{{- end }}
+}

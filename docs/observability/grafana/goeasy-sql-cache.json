@@ -1,0 +1,96 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "id": 1,
+      "targets": [
+        {
+          "expr": "sum(rate(goeasy_sql_queries_total{service=\"$service\"}[1m])) by (op)",
+          "legendFormat": "{{op}}",
+          "refId": "A"
+        }
+      ],
+      "title": "SQL QPS（按操作）",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "id": 2,
+      "targets": [
+        {
+          "expr": "sum(rate(goeasy_sql_slow_total{service=\"$service\"}[5m])) by (op)",
+          "legendFormat": "slow {{op}}",
+          "refId": "A"
+        }
+      ],
+      "title": "慢 SQL 速率",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "fieldConfig": { "defaults": { "unit": "percentunit", "max": 1, "min": 0 }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "id": 3,
+      "targets": [
+        {
+          "expr": "sum(rate(goeasy_cache_hit_total{service=\"$service\"}[5m])) / (sum(rate(goeasy_cache_hit_total{service=\"$service\"}[5m])) + sum(rate(goeasy_cache_miss_total{service=\"$service\"}[5m])))",
+          "legendFormat": "hit ratio",
+          "refId": "A"
+        }
+      ],
+      "title": "缓存命中率",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "id": 4,
+      "targets": [
+        {
+          "expr": "sum(rate(goeasy_cache_hit_total{service=\"$service\"}[1m])) by (layer)",
+          "legendFormat": "hit {{layer}}",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(rate(goeasy_cache_miss_total{service=\"$service\"}[1m])) by (layer)",
+          "legendFormat": "miss {{layer}}",
+          "refId": "B"
+        }
+      ],
+      "title": "缓存命中/未命中（按层）",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["goeasy", "sql", "cache"],
+  "templating": {
+    "list": [
+      {
+        "name": "datasource",
+        "type": "datasource",
+        "query": "prometheus",
+        "current": { "text": "Prometheus", "value": "Prometheus" }
+      },
+      {
+        "name": "service",
+        "type": "query",
+        "datasource": { "type": "prometheus", "uid": "${datasource}" },
+        "query": "label_values(goeasy_sql_queries_total, service)",
+        "current": { "text": "demo", "value": "demo" }
+      }
+    ]
+  },
+  "time": { "from": "now-1h", "to": "now" },
+  "title": "GoEasy SQL 与缓存",
+  "uid": "goeasy-sql-cache",
+  "version": 1
+}

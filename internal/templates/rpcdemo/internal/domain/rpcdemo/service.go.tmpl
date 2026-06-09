@@ -1,0 +1,16 @@
+package rpcdemo
+
+import "context"
+
+type DomainService struct{}
+
+func NewDomainService() *DomainService {
+	return &DomainService{}
+}
+
+func (d *DomainService) Validate(_ context.Context, agg *Aggregate) error {
+	if agg == nil || agg.Root() == nil {
+		return ErrNotFound
+	}
+	return nil
+}

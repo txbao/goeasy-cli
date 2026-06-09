@@ -33,8 +33,8 @@ func init() {
 	rootCmd.AddCommand(migrateCmd)
 
 	migrateCmd.PersistentFlags().StringVar(&migrateDir, "dir", ".", "Project root directory")
-	migrateCmd.PersistentFlags().StringVarP(&migrateConfig, "config", "f", "configs/config.yaml", "Config file path")
-	migrateCmd.PersistentFlags().StringVar(&migrateMigrations, "migrations", "migrations", "Migrations directory")
+	migrateCmd.PersistentFlags().StringVarP(&migrateConfig, "config", "f", "", "Config file path (default: configs/config.yaml or GOEASY_CONFIG)")
+	migrateCmd.PersistentFlags().StringVar(&migrateMigrations, "migrations", "migrations", "Migrations root (default: migrations/<driver> from config)")
 
 	migrateCmd.AddCommand(&cobra.Command{
 		Use:   "up",
@@ -88,11 +88,7 @@ func init() {
 		Short: "Create a new up/down migration pair",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			abs, err := filepath.Abs(migrateDir)
-			if err != nil {
-				return err
-			}
-			return migrate.Create(filepath.Join(abs, migrateMigrations), args[0])
+			return migrate.Create(migrateOpts(), args[0])
 		},
 	})
 }
@@ -104,8 +100,8 @@ func migrateOpts() migrate.Options {
 	}
 	return migrate.Options{
 		ProjectDir:    abs,
-		ConfigPath:    migrateConfig,
-		MigrationsDir: filepath.Join(abs, migrateMigrations),
+		ConfigPath:    resolvedConfigPath(abs, migrateConfig),
+		MigrationsDir: migrateMigrations,
 		Steps:         migrateSteps,
 	}
 }

@@ -1,0 +1,6 @@
+package mqdemo
+
+import "{{ .ModuleName }}/internal/app/mqdemo/command"
+
+// PublishRequest 复用应用层命令作为 HTTP 请求体。
+type PublishRequest = command.PublishCommand

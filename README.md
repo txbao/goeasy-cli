@@ -23,7 +23,7 @@ cd demo
 go mod tidy
 go run ./cmd/service
 go run ./cmd/service -f configs/config.example.yaml
-goeasy-cli migrate up -f configs/config.yaml
+goeasy-cli migrate up
 ```
 
 CLI 会在项目目录执行 `go mod init`；依赖由 `go mod tidy` 根据源码 import 解析。
@@ -50,6 +50,8 @@ goeasy-cli add module user
 goeasy-cli add crud user --force
 goeasy-cli add repository order
 goeasy-cli add proto user
+goeasy-cli add db proto --table sys_roles
+goeasy-cli gen proto
 goeasy-cli add event user-created
 goeasy-cli add aggregate order
 ```

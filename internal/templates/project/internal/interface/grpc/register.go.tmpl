@@ -1,0 +1,15 @@
+package grpc
+
+import (
+	"{{ .GoEasyModule }}/grpcx"
+)
+
+// RegisterAll 注册全部模块 gRPC 服务。
+// add db proto / add db crud --with-proto 会为各模块生成 internal/interface/grpc/<module>/server.go，
+// 在此追加：<module>.RegisterGRPC(s) 。
+func RegisterAll(s *grpcx.Server) {
+	if s == nil {
+		return
+	}
+	// grpc modules (goeasy add db proto appends below)
+}

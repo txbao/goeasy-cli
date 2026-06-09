@@ -1,0 +1,23 @@
+package main
+
+import (
+	"flag"
+	"log"
+
+	"{{ .GoEasyModule }}/app"
+	"{{ .GoEasyModule }}/config"
+
+	"{{ .ModuleName }}/internal/bootstrap"
+)
+
+func main() {
+	configPath := flag.String("f", "configs/config.yaml", "配置文件路径")
+	flag.Parse()
+
+	cfg := config.MustLoad(*configPath)
+	application := app.New(cfg)
+	application.RegisterConsumer(bootstrap.RegisterMQDemoConsumers)
+	if err := application.RunConsumer(); err != nil {
+		log.Fatal(err)
+	}
+}

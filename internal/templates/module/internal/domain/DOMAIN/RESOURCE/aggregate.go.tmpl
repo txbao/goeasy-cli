@@ -1,0 +1,27 @@
+package {{ .Resource }}
+
+// Aggregate {{ .ModulePascal }} 聚合根。
+type Aggregate struct {
+	root *{{ .ModulePascal }}
+}
+
+func NewAggregate(id string) *Aggregate {
+	return &Aggregate{root: New{{ .ModulePascal }}(id)}
+}
+
+// NewAggregateFromPersistence 从持久化数据重建聚合。
+func NewAggregateFromPersistence(id string, active bool) *Aggregate {
+	return &Aggregate{root: Rehydrate{{ .ModulePascal }}(id, active)}
+}
+
+func (a *Aggregate) Root() *{{ .ModulePascal }} {
+	return a.root
+}
+
+func (a *Aggregate) Disable() error {
+	return a.root.Disable()
+}
+
+func (a *Aggregate) Enable() error {
+	return a.root.Enable()
+}

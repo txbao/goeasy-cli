@@ -1,0 +1,67 @@
+package {{ .HTTPPackage }}
+
+import (
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+
+	"{{ .ModuleName }}/internal/app/{{ .Domain }}/{{ .Resource }}/command"
+	zpage "{{ .GoEasyModule }}/pagination"
+	zresp "{{ .GoEasyModule }}/response"
+	zvalid "{{ .GoEasyModule }}/validator"
+)
+
+func (h *Handler) List(c *gin.Context) {
+	var req zpage.Page
+	if err := c.ShouldBindJSON(&req); err != nil {
+		req = zpage.Parse(c)
+	}
+	req = zpage.Normalize(req)
+	if err := zvalid.Validate(&req); err != nil {
+		zresp.Fail(c, http.StatusBadRequest, zvalid.Format(err))
+		return
+	}
+	result, err := h.app.List(c.Request.Context(), req.Page, req.PageSize)
+	if err != nil {
+		zresp.Fail(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	list := make([]ResponseDTO, 0, len(result.List))
+	for i := range result.List {
+		list = append(list, ToResponseDTO(&result.List[i]))
+	}
+	zresp.Success(c, gin.H{
+		"list":       list,
+		"pagination": zpage.MetaFrom(req.Page, req.PageSize, result.Total),
+	})
+}
+
+{{- if .ClientFullCRUD }}
+func (h *Handler) Update(c *gin.Context) {
+	id := c.Param("id")
+	var cmd command.UpdateCommand
+	if err := c.ShouldBindJSON(&cmd); err != nil {
+		zresp.Fail(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	if err := zvalid.Validate(&cmd); err != nil {
+		zresp.Fail(c, http.StatusBadRequest, zvalid.Format(err))
+		return
+	}
+	cmd.ID = id
+	if err := h.app.Commands().Update(c.Request.Context(), cmd); err != nil {
+		zresp.Fail(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	zresp.Success(c, gin.H{"updated": id})
+}
+
+func (h *Handler) Delete(c *gin.Context) {
+	id := c.Param("id")
+	if err := h.app.Commands().Delete(c.Request.Context(), id); err != nil {
+		zresp.Fail(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	zresp.Success(c, gin.H{"deleted": id})
+}
+{{- end }}

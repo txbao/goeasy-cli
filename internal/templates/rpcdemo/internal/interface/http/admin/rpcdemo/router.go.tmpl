@@ -1,0 +1,9 @@
+package rpcdemo
+
+import "github.com/gin-gonic/gin"
+
+func RegisterRoutes(r *gin.RouterGroup, h *Handler) {
+	g := r.Group("/rpcdemo")
+	g.GET("/:id", h.Get)
+	g.POST("", h.Create)
+}

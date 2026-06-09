@@ -1,0 +1,27 @@
+package dbx
+
+import (
+	"testing"
+
+	"github.com/doug-martin/goqu/v9"
+)
+
+func TestDialectPostgres(t *testing.T) {
+	q := Dialect("postgres")
+	sql, _, err := q.From("t").Select("id").Where(goqu.Ex{"id": 1}).ToSQL()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if sql == "" {
+		t.Fatal("empty sql")
+	}
+}
+
+func TestTableName(t *testing.T) {
+	if TableName("", "sys_roles") != "sys_roles" {
+		t.Fatal("empty prefix")
+	}
+	if TableName("ge_", "sys_roles") != "ge_sys_roles" {
+		t.Fatal("with prefix")
+	}
+}

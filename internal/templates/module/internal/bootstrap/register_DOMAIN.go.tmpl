@@ -1,0 +1,71 @@
+package bootstrap
+
+import (
+	"github.com/gin-gonic/gin"
+
+	goeasyapp "{{ .GoEasyModule }}/app"
+{{- if .AnyWithPG }}
+
+	"{{ .ProjectModule }}/internal/infrastructure/shared/dbx"
+{{- end }}
+{{- if .NeedHTTPMiddleware }}
+	"{{ .ProjectModule }}/internal/interface/http/middleware"
+{{- end }}
+{{- range .Modules }}
+	{{ .ModuleAlias }}app "{{ .AppImport }}"
+	{{ .ModuleAlias }}domain "{{ .DomainImport }}"
+	{{ .ModuleAlias }}infra "{{ .PersistenceImport }}"
+{{- range .ClientSurfaces }}
+	{{ .ImportAlias }} "{{ $.ProjectModule }}/{{ .HttpImportPath }}"
+{{- end }}
+{{- end }}
+)
+
+// Register{{ .DomainPascal }} 装配并注册 {{ .Domain }} 限界上下文路由。
+func Register{{ .DomainPascal }}(engine *gin.Engine, infra goeasyapp.HTTPInfra) error {
+{{- range .SharedClients }}
+{{- if .UseAuth }}
+	api{{ .Pascal }} := engine.Group("/api/v1/{{ .Name }}", middleware.{{ .Middleware }}(infra))
+{{- else }}
+	api{{ .Pascal }} := engine.Group("/api/v1/{{ .Name }}")
+{{- end }}
+{{- end }}
+{{- range .Modules }}
+	if err := register{{ $.DomainPascal }}{{ .ModulePascal }}({{- range $.SharedClients }}api{{ .Pascal }}, {{end }}infra); err != nil {
+		return err
+	}
+{{- end }}
+	return nil
+}
+
+{{- range .Modules }}
+
+// register{{ $.DomainPascal }}{{ .ModulePascal }} 装配 {{ .ModuleSnake }}。
+// goeasy-module: {{ .ModuleSnake }}
+func register{{ $.DomainPascal }}{{ .ModulePascal }}({{- range $.SharedClients }}api{{ .Pascal }} *gin.RouterGroup, {{end }}infra goeasyapp.HTTPInfra) error {
+	var repo {{ .ModuleAlias }}domain.Repository
+{{- if .WithPG }}
+	if sqlxDB := infra.DB.SQLX(); sqlxDB != nil {
+		table := dbx.TableName(infra.TablePrefix, "{{ .ModuleSnake }}")
+		repo = {{ .ModuleAlias }}infra.NewPGRepository(sqlxDB, infra.DBDriver, table, infra.Cache, infra.RedisKeyPrefix, "{{ .ModuleSnake }}", infra.EntityCacheEnabled, infra.EntityCacheTTL)
+	} else {
+		repo = {{ .ModuleAlias }}infra.NewRepository()
+	}
+{{- else }}
+	repo = {{ .ModuleAlias }}infra.NewRepository()
+{{- end }}
+	dom := {{ .ModuleAlias }}domain.NewDomainService()
+	application := {{ .ModuleAlias }}app.NewApplication(repo, dom)
+{{- $mod := . }}
+{{- range .ClientSurfaces }}
+	h{{ .Pascal }} := {{ .ImportAlias }}.NewHandler(application)
+	{{ .ImportAlias }}.RegisterRoutes(api{{ .Pascal }}, h{{ .Pascal }})
+{{- if $mod.WithCRUD }}
+{{- if .FullCRUD }}
+	{{ .ImportAlias }}.RegisterCRUDRoutes(api{{ .Pascal }}, h{{ .Pascal }})
+{{- end }}
+{{- end }}
+{{- end }}
+	return nil
+}
+{{- end }}

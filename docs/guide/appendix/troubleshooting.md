@@ -38,6 +38,14 @@ go build -o goeasy.exe .
 
 这是预期约束。将 `new Repository` 移到 `bootstrap/wire.go`，Handler 只接收 Application。
 
+### 路由 404：期望 `/api/v1/admin/system/roles` 但仍是 `/api/v1/admin/sys_roles`
+
+| 现象 | 处理 |
+|------|------|
+| 旧扁平路由仍可访问，新分组路由 404 | 在 `configs/config.yaml` 增加 `codegen.group_prefixes`，对目标表 `add db crud --force` 重生成 HTTP 层 |
+| `register_*.go` import 路径与 handler 目录不一致 | 升级 CLI 后 `add db crud --table <m> --force` 或 `add module <m> --group <g> --resource <r> --force` |
+| 无分组配置 | 扁平路由为预期行为；见 [09 项目配置 §7](../09-project-config-p0-p1.md) |
+
 ## 运行
 
 ### 端口占用
@@ -51,6 +59,19 @@ go build -o goeasy.exe .
 ### `/healthz` 无响应
 
 在配置中启用 `observability.health.enabled`（参见 `config.example.yaml`）。
+
+### grpcurl list 只有 Reflection、没有业务 Service
+
+| 现象 | 处理 |
+|------|------|
+| 仅有 `grpc.reflection.v1*` | gRPC 端口正常；业务 `Register*ServiceServer` 未生效或未实现 |
+| `go build` 报找不到 `api/proto/gen/...` | `add db proto` 后缺 `*.pb.go`；执行 `goeasy-cli gen proto --file api/proto/<module>.proto`（需 protoc 与 go 插件） |
+| `register_*.go: syntax error: unexpected .` | 旧版 CLI `ImportAlias` 生成 bug；升级 CLI 后 `add db crud --table <m> --force` 重生成 register，或手改 HTTP import 别名 |
+| 编译通过但 list 仍无 Service | 确认 `internal/bootstrap/grpc.go` 含 `Register<Module>GRPC`；存在 `register_<module>_grpc.go` 与 `internal/interface/grpc/<domain>/<resource>/server.go` |
+| `no required module .../grpc/sys_roles` | register import 与 domain 布局不一致 | `add db proto --table <m> --force` 或手改 import 为 `.../grpc/<domain>/<resource>`；见 [11 gRPC](../11-grpc-internal.md) |
+| 有 `api/proto/*.proto` 和 `api/proto/gen/*.pb.go`，但无 gRPC 桩目录 | 命令顺序错误或旧版跳过桩生成 | 先 `add db crud --table <m>`，再 `add db proto --table <m>`（自动补齐）；见 [11 gRPC 项目集成](../11-grpc-internal.md) |
+| 老项目 `server.go` 注册仍被注释 | `goeasy-cli add db proto --force` 覆盖桩，或手改与 [11 gRPC 项目集成](../11-grpc-internal.md) 一致 |
+| `no required module .../command` | `add db proto` / `gen grpc` 生成的 handlers 与 `codegen.app_style` 不一致 | 升级 CLI 后 `add db proto --table <m> --force`；见 [11 gRPC](../11-grpc-internal.md) |
 
 ## 模板与升级
 

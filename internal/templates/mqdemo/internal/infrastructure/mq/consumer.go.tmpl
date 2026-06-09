@@ -1,0 +1,23 @@
+package mqinfra
+
+import (
+	"context"
+
+	goeasymq "{{ .GoEasyModule }}/mq"
+
+	mqhandler "{{ .ModuleName }}/internal/interface/mq/mqdemo"
+)
+
+// Consumer 订阅 NSQ 并委派给 interface/mq 适配层。
+type Consumer struct {
+	mq      goeasymq.MQ
+	handler *mqhandler.Handler
+}
+
+func NewConsumer(mqClient goeasymq.MQ, handler *mqhandler.Handler) *Consumer {
+	return &Consumer{mq: mqClient, handler: handler}
+}
+
+func (c *Consumer) Subscribe(ctx context.Context, topic string) error {
+	return c.mq.Subscribe(ctx, topic, c.handler.HandleRaw)
+}

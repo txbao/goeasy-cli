@@ -1,0 +1,25 @@
+package rpcdemo
+
+type Aggregate struct {
+	root *Rpcdemo
+}
+
+func NewAggregate(id string) *Aggregate {
+	return &Aggregate{root: NewRpcdemo(id)}
+}
+
+func NewAggregateFromPersistence(id string, active bool) *Aggregate {
+	return &Aggregate{root: RehydrateRpcdemo(id, active)}
+}
+
+func (a *Aggregate) Root() *Rpcdemo {
+	return a.root
+}
+
+func (a *Aggregate) Disable() error {
+	return a.root.Disable()
+}
+
+func (a *Aggregate) Enable() error {
+	return a.root.Enable()
+}

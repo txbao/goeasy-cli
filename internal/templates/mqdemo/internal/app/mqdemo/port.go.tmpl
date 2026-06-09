@@ -1,0 +1,18 @@
+package mqdemo
+
+import (
+	"context"
+	"encoding/json"
+
+	"{{ .ModuleName }}/internal/app/mqdemo/command"
+)
+
+// MessagePublisher 对外部 MQ 的发布端口（由 infrastructure/mq 实现）。
+type MessagePublisher interface {
+	Publish(ctx context.Context, eventType string, payload json.RawMessage) (PublishResult, error)
+}
+
+// MessageDispatch 统一发布入口，供 HTTP / Scheduler 共用。
+type MessageDispatch interface {
+	Dispatch(ctx context.Context, cmd command.PublishCommand) (PublishResult, error)
+}

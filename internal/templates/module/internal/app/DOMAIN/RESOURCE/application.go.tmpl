@@ -1,0 +1,22 @@
+package {{ .Resource }}
+
+import (
+	"{{ .ModuleName }}/internal/app/{{ .Domain }}/{{ .Resource }}/command"
+	"{{ .ModuleName }}/internal/app/{{ .Domain }}/{{ .Resource }}/query"
+	domain "{{ .ModuleName }}/internal/domain/{{ .Domain }}/{{ .Resource }}"
+)
+
+type Application struct {
+	queries  *query.Handler
+	commands *command.Handler
+}
+
+func NewApplication(repo domain.Repository, domainSvc *domain.DomainService) *Application {
+	return &Application{
+		queries:  query.NewHandler(repo, domainSvc),
+		commands: command.NewHandler(repo, domainSvc),
+	}
+}
+
+func (a *Application) Queries() *query.Handler   { return a.queries }
+func (a *Application) Commands() *command.Handler { return a.commands }

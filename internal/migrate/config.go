@@ -43,8 +43,10 @@ func (d databaseYAML) validateForMigrate() error {
 	if d.DSN == "" {
 		return fmt.Errorf("database.dsn is empty")
 	}
-	if d.Driver != "postgres" {
-		return fmt.Errorf("migrate currently supports driver=postgres, got %q", d.Driver)
+	switch d.Driver {
+	case "postgres", "mysql":
+		return nil
+	default:
+		return fmt.Errorf("migrate supports database.driver postgres or mysql, got %q", d.Driver)
 	}
-	return nil
 }

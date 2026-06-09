@@ -1,0 +1,17 @@
+package dbx
+
+import (
+	"github.com/doug-martin/goqu/v9"
+	_ "github.com/doug-martin/goqu/v9/dialect/mysql"
+	_ "github.com/doug-martin/goqu/v9/dialect/postgres"
+)
+
+// Dialect 根据 database.driver 返回 goqu 方言。
+func Dialect(driver string) goqu.DialectWrapper {
+	switch driver {
+	case "mysql":
+		return goqu.Dialect("mysql")
+	default:
+		return goqu.Dialect("postgres")
+	}
+}

@@ -1,0 +1,17 @@
+package bootstrap
+
+import (
+	"{{ .GoEasyModule }}/app"
+	"{{ .GoEasyModule }}/grpcx"
+
+	projgrpc "{{ .ModuleName }}/internal/interface/grpc"
+)
+
+// RegisterGRPCServers 注册各业务模块 gRPC 服务（add db proto 生成 register_<module>_grpc.go 并在此追加调用）。
+func RegisterGRPCServers(s *grpcx.Server, infra app.HTTPInfra) {
+	if s == nil {
+		return
+	}
+	projgrpc.RegisterAll(s)
+	// grpc bootstrap modules (goeasy add db proto appends below)
+}

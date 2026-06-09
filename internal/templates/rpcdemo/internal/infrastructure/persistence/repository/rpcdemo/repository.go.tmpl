@@ -1,0 +1,45 @@
+package rpcdemo
+
+import (
+	"context"
+	"fmt"
+	"sync"
+
+	domain "{{ .ModuleName }}/internal/domain/rpcdemo"
+)
+
+type repository struct {
+	mu   sync.RWMutex
+	data map[string]*domain.Aggregate
+}
+
+func NewRepository() domain.Repository {
+	return &repository{data: make(map[string]*domain.Aggregate)}
+}
+
+func (r *repository) FindByID(ctx context.Context, id string) (*domain.Aggregate, error) {
+	_ = ctx
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	agg, ok := r.data[id]
+	if !ok {
+		return nil, fmt.Errorf("rpcdemo %s not found", id)
+	}
+	return agg, nil
+}
+
+func (r *repository) Save(ctx context.Context, agg *domain.Aggregate) error {
+	_ = ctx
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	r.data[agg.Root().ID()] = agg
+	return nil
+}
+
+func (r *repository) Delete(ctx context.Context, id string) error {
+	_ = ctx
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	delete(r.data, id)
+	return nil
+}

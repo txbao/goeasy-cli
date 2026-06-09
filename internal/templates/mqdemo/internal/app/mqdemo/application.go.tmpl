@@ -1,0 +1,26 @@
+package mqdemo
+
+import (
+	"context"
+
+	"{{ .ModuleName }}/internal/app/mqdemo/command"
+	domain "{{ .ModuleName }}/internal/domain/mqdemo"
+)
+
+// Application 应用层门面。
+type Application struct {
+	commands *CommandHandler
+}
+
+func NewApplication(repo domain.Repository, publisher MessagePublisher) *Application {
+	return &Application{
+		commands: NewCommandHandler(repo, publisher),
+	}
+}
+
+func (a *Application) Commands() *CommandHandler { return a.commands }
+
+// Dispatch 实现 MessageDispatch，供 HTTP / Scheduler 共用。
+func (a *Application) Dispatch(ctx context.Context, cmd command.PublishCommand) (PublishResult, error) {
+	return a.commands.Publish(ctx, cmd)
+}

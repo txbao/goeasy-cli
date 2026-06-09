@@ -1,0 +1,13 @@
+package bootstrap
+
+import (
+	"github.com/gin-gonic/gin"
+
+	goeasyapp "{{ .GoEasyModule }}/app"
+)
+
+// registerAllModules 注册业务模块（goeasy add module / add crud 自动追加调用）。
+func registerAllModules(engine *gin.Engine, infra goeasyapp.HTTPInfra) error {
+	// business modules (goeasy add module / add crud appends below)
+	return nil
+}

@@ -3,17 +3,12 @@ package bootstrap
 import (
 	"github.com/gin-gonic/gin"
 
-	apphealth "{{ .ModuleName }}/internal/app/health"
-	domainhealth "{{ .ModuleName }}/internal/domain/health"
-	healthinfra "{{ .ModuleName }}/internal/infrastructure/persistence/health"
-	healthhttp "{{ .ModuleName }}/internal/interface/http/health"
+	goeasyapp "{{ .GoEasyModule }}/app"
 )
 
 // RegisterRoutes 在 bootstrap 完成依赖装配。
-func RegisterRoutes(engine *gin.Engine) {
-	repo := healthinfra.NewMemoryRepository()
-	domainSvc := domainhealth.NewDomainService()
-	app := apphealth.NewApplication(repo, domainSvc)
-	h := healthhttp.NewHandler(app)
-	healthhttp.RegisterRoutes(engine, h)
+// CORS / Trace / 限流 由 goeasy httpx 引擎按 config 自动挂载；鉴权见 internal/interface/http/middleware。
+func RegisterRoutes(engine *gin.Engine, infra goeasyapp.HTTPInfra) error {
+	registerHealth(engine)
+	return registerAllModules(engine, infra)
 }

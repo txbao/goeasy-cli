@@ -1,0 +1,16 @@
+package rpcdemo
+
+import "time"
+
+type RpcdemoCreated struct {
+	ID         string
+	OccurredAt time.Time
+}
+
+func NewRpcdemoCreated(id string) RpcdemoCreated {
+	return RpcdemoCreated{ID: id, OccurredAt: time.Now()}
+}
+
+func (e RpcdemoCreated) Name() string {
+	return "rpcdemo.created"
+}

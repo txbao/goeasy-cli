@@ -1,0 +1,41 @@
+package rpcdemo
+
+import "errors"
+
+var (
+	ErrNotFound        = errors.New("rpcdemo: not found")
+	ErrAlreadyDisabled = errors.New("rpcdemo: already disabled")
+	ErrAlreadyActive   = errors.New("rpcdemo: already active")
+)
+
+type Rpcdemo struct {
+	id     string
+	active bool
+}
+
+func NewRpcdemo(id string) *Rpcdemo {
+	return &Rpcdemo{id: id, active: true}
+}
+
+func RehydrateRpcdemo(id string, active bool) *Rpcdemo {
+	return &Rpcdemo{id: id, active: active}
+}
+
+func (e *Rpcdemo) ID() string   { return e.id }
+func (e *Rpcdemo) Active() bool { return e.active }
+
+func (e *Rpcdemo) Disable() error {
+	if !e.active {
+		return ErrAlreadyDisabled
+	}
+	e.active = false
+	return nil
+}
+
+func (e *Rpcdemo) Enable() error {
+	if e.active {
+		return ErrAlreadyActive
+	}
+	e.active = true
+	return nil
+}

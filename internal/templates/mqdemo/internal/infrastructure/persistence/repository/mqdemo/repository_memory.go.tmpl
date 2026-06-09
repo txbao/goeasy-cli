@@ -1,0 +1,33 @@
+package mqdemo
+
+import (
+	"context"
+	"sync"
+
+	domain "{{ .ModuleName }}/internal/domain/mqdemo"
+)
+
+type memoryRepository struct {
+	mu   sync.RWMutex
+	seen map[string]struct{}
+}
+
+func NewMemoryRepository() domain.Repository {
+	return &memoryRepository{seen: make(map[string]struct{})}
+}
+
+func (r *memoryRepository) Exists(ctx context.Context, eventID string) (bool, error) {
+	_ = ctx
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	_, ok := r.seen[eventID]
+	return ok, nil
+}
+
+func (r *memoryRepository) Save(ctx context.Context, eventID string) error {
+	_ = ctx
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	r.seen[eventID] = struct{}{}
+	return nil
+}

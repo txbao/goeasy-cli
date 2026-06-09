@@ -1,0 +1,9 @@
+package mqdemo
+
+import "context"
+
+// Repository 消费幂等记录（示例用内存实现）。
+type Repository interface {
+	Exists(ctx context.Context, eventID string) (bool, error)
+	Save(ctx context.Context, eventID string) error
+}

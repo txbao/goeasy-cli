@@ -1,0 +1,49 @@
+# gRPC Proto 契约
+
+由 `goeasy add db proto` 或 `add db crud --with-proto` 生成 `*.proto`。
+
+## 目录约定
+
+```text
+api/proto/
+├── sys_roles.proto       # 契约源文件（手改）
+├── imported/             # gen proto --from-url 拉取的远程契约
+└── gen/                  # protoc 生成的 *.pb.go（需提交，勿手改）
+    └── sys_roles/
+```
+
+## 生成 Go 代码
+
+```bat
+goeasy gen proto
+goeasy gen proto --file api/proto/<module>.proto
+```
+
+需本机安装 [protoc](https://github.com/protocolbuffers/protobuf/releases) 及：
+
+```bat
+go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+```
+
+手动等价命令：
+
+```bat
+protoc --go_out=. --go-grpc_out=. api/proto/*.proto
+```
+
+`go_package` 已设为 `{{ .ModuleName }}/api/proto/gen/<module>`。
+
+## 注册与实现
+
+| 步骤 | 说明 |
+|------|------|
+| `gen proto` | 生成 `api/proto/gen/<module>/*.pb.go` |
+| `internal/interface/grpc/<domain>/<resource>/server.go` | 实现 `*ServiceServer`（如 `system/roles`）；`api/proto/<module_id>.proto` 仍用模块 ID |
+| `internal/interface/grpc/register.go` | `add db proto` 自动追加 `RegisterGRPC` |
+
+详见 `goeasy-cli/docs/guide/11-grpc-internal.md` 与 `internal/bootstrap/snippets/<module>_grpc.md`。
+
+## 服务方法
+
+每个表对应 `*Service`：`List` / `Get` / `Create` / `Update` / `Delete`（与库表 CRUD 对齐）。

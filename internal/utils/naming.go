@@ -32,6 +32,11 @@ func ToSnake(name string) string {
 	return b.String()
 }
 
+// ToIdent converts sys_roles -> sysroles (valid Go identifier prefix for import aliases).
+func ToIdent(name string) string {
+	return strings.ReplaceAll(ToSnake(name), "_", "")
+}
+
 func splitName(name string) []string {
 	name = strings.TrimSpace(name)
 	name = strings.ReplaceAll(name, "-", "_")

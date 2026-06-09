@@ -12,34 +12,18 @@
 | 工具 | 用途 |
 |------|------|
 | protoc | 编译 `.proto` |
+| grpcurl | 跨服务 gRPC 联调（`goeasy-cli grpc list/call`） |
 
-## 方式一：本地编译 goeasy-cli（推荐 monorepo 开发）
-
-在框架仓库中进入脚手架目录并编译：
-
-```bat
-cd goeasy-cli
-go build -o goeasy.exe .
-```
-
-验证：
-
-```bat
-.\goeasy.exe version
-```
-
-在 Git Bash 中必须使用 `./goeasy.exe`，不能直接输入 `goeasy.exe`（当前目录不在 PATH 中）。
-
-## 方式二：go install 安装
+## 方式一：go install 安装
 
 ```bat
 go install github.com/txbao/goeasy-cli@latest
 ```
 
-安装后命令名为 **`goeasy`**（不是 `goeasy-cli`）：
+安装后命令名为 **`goeasy-cli`**：
 
 ```bat
-goeasy version
+goeasy-cli version
 ```
 
 确保 `%USERPROFILE%\go\bin` 已加入系统 PATH。

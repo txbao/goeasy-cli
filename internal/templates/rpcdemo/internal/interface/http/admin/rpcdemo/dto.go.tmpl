@@ -1,0 +1,15 @@
+package rpcdemo
+
+import (
+	domain "{{ .ModuleName }}/internal/domain/rpcdemo"
+)
+
+type ResponseDTO struct {
+	ID     string `json:"id"`
+	Active bool   `json:"active"`
+}
+
+func ToResponse(agg *domain.Aggregate) ResponseDTO {
+	r := agg.Root()
+	return ResponseDTO{ID: r.ID(), Active: r.Active()}
+}

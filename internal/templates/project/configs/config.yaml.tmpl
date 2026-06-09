@@ -2,39 +2,113 @@
 app_name: {{ .ProjectName }}
 env: dev
 
-# HTTP 服务监听（interface/http 路由挂载在 goeasy/httpx）
+# HTTP 服务监听（cmd/service；interface/http 路由挂载在 goeasy/httpx）
 http:
   host: 0.0.0.0
   port: 8080
+  cors:
+    enabled: false
+    allow_origins: ["*"]
+    allow_methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+    allow_headers: ["Content-Type", "Authorization", "X-Request-ID"]
+    allow_credentials: false
 
-# 数据库（基础设施下沉 goeasy/database；业务 SQL 在 migrations/）
+# Consumer 健康探针 HTTP（cmd/consumer；与业务 http 端口分离，仅 /healthz 等）
+consumer_http:
+  enabled: false
+  host: 0.0.0.0
+  port: 18080
+
+# 数据库（业务 SQL 在 migrations/postgres 或 migrations/mysql，由 driver 决定）
 database:
   enabled: false
-  orm: sqlx          # 默认 sqlx + squirrel 构建 SQL；扩展: gorm | ent
+  orm: sqlx          # sqlx 执行 + goqu 构建 SQL；扩展: gorm | ent
   driver: postgres   # postgres | mysql
+  table_prefix: ""   # 可选表前缀，如 ge_ → ge_<module>
   dsn: ""
   max_open: 10
   max_idle: 5
 
-# Redis 缓存（goeasy/cache；enabled 时 main 启动会初始化连接）
+# 库表驱动代码生成（goeasy-cli add db；需 database.enabled + dsn + redis.enabled + addr）
+codegen:
+  create_omit: [id, created_at, updated_at, deleted_at]
+  update_omit: [created_at, updated_at, deleted_at]
+  soft_delete_column: deleted_at
+  touch_created_at_on_insert: true
+  touch_updated_at_on_update: true
+  layout: domain
+  app_style: service   # service | light_cqrs | full_cqrs（CLI 仅支持前两者；full 见文档）
+  # 限界上下文：表前缀 / 模块 ID → domain + resource（/api/v1/admin/{domain}/{resource}）
+  domains:
+    system:
+      table_prefix: sys_
+      modules:
+        sys_roles:
+          resource: roles
+        sys_menus:
+          resource: menus
+    order:
+      table_prefix: ord_
+      modules:
+        ord_orders:
+          resource: orders
+
+# Redis（goeasy/cache；enabled 时启动连接）
 redis:
   enabled: false
   addr: "127.0.0.1:6379"
   password: ""       # 无密码留空
   db: 0              # 逻辑库 0-15
+  key_prefix: ""     # 实体缓存 key 前缀，空则使用 app_name
+  default_ttl: 168h  # 默认缓存 TTL（一周）
+
+# 实体缓存（FindByID 等；需 redis.enabled；key: {key_prefix}:{module}:id:{id}）
+cache:
+  enabled: false
+  entity_ttl: 168h   # 空则使用 redis.default_ttl
+  l1:
+    enabled: false
+    max_entries: 10000
+    ttl: 1m
+  null_ttl: 5m       # 空值缓存，防穿透
+  ttl_jitter: 0.1    # TTL 抖动比例，防雪崩
 
 # 消息队列（goeasy/mq）
 mq:
   enabled: false
   type: nsq          # nsq
-  addr: ""
+  nsqd_addr: "127.0.0.1:4150"      # Producer 直连
+  lookupd_addr: "127.0.0.1:4161"   # Consumer 发现
+  channel: "default"
+  outbox:
+    enabled: false               # 事务发件箱，默认关闭；开启需 database.enabled + 执行 000002_outbox 迁移
+    table: goeasy_outbox         # 表名，自动拼接 database.table_prefix
+    poll_interval: 5s            # relay 轮询间隔
+    batch_size: 50
+    max_retries: 5
 
-# gRPC 服务端/客户端（goeasy/grpcx）
+# gRPC 服务端/客户端（cmd/service；consumer 不 Serve gRPC）
 grpc:
   enabled: false
-  addr: ""
+  addr: "0.0.0.0:9001"
   timeout_sec: 5
   max_retries: 2
+
+# 服务发现（小项目 direct；集群 optional etcd）
+discovery:
+  mode: direct              # direct | etcd
+  etcd:
+    enabled: false
+    endpoints: ["127.0.0.1:2379"]
+    dial_timeout_sec: 5
+    lease_ttl_sec: 30
+    advertise_addr: ""   # 注册可达地址，空则回退 services[app_name] 或监听地址
+    prefix: /goeasy/services
+  services:
+    # 逻辑服务名(app_name): 对端 gRPC 可达 host:port（非 etcd 2379 端口）；显式配置优先于 ETCD
+    # add rpcdemo --remote <name> 时须存在同名键，如 demo1: "127.0.0.1:18083"
+    {{ .ProjectName }}: "127.0.0.1:9001"
+    # peer-svc: "10.0.0.2:9001"   # 跨服务调用 / rpcdemo --remote peer-svc，见 guide/12、14
 
 # 微服务治理（goeasy/breaker、limiter、retry）
 governance:
@@ -42,17 +116,36 @@ governance:
     enabled: false
   limiter:
     enabled: false
+    mode: local          # local | redis | both（redis 需 redis.enabled）
     qps: 100
     burst: 200
+    dimensions: [global, ip]  # global | ip | user
   retry:
     enabled: false
     max_retries: 3
     backoff_ms: 100
 
+# 定时任务（goeasy/scheduler；业务任务在 bootstrap 注册）
+scheduler:
+  enabled: false
+  timezone: Asia/Shanghai
+
 # 可观测性（goeasy/trace、metrics、audit、health）
 observability:
+  logger:
+    level: debug         # dev 默认 debug；生产建议 info
+    format: json         # json | text
+    output: stdout
+  sql:
+    enabled: false
+    slow_ms: 200
   trace:
     enabled: true
+    exporter: noop       # noop=本地 trace_id；otlp=导出到 Collector（Tempo/Jaeger）
+    protocol: grpc       # grpc | http（otlp 时生效）
+    endpoint: ""         # 如 127.0.0.1:4317
+    insecure: true       # 本地开发可 true
+    sample_ratio: 1.0    # 采样率 0~1
   metrics:
     enabled: false
     path: /metrics
@@ -61,15 +154,34 @@ observability:
   health:
     enabled: true
     path: /healthz
+  mq:
+    log_payload: false
+    log_payload_max_bytes: 512
 
 # 企业公共组件（无业务规则；JWT/Casbin/ID 生成）
 enterprise:
-  jwt:
+  jwt:               # 管理后台
     enabled: false
     secret: ""
-    issuer: {{ .ProjectName }}
+    issuer: {{ .ProjectName }}-admin
     expire_min: 60
+  member_jwt:        # H5 会员（独立密钥，按需启用）
+    enabled: false
+    secret: ""
+    issuer: {{ .ProjectName }}-member
+    expire_min: 10080
   casbin:
     enabled: false
+    model: ""        # 文件路径或内联 model 文本
+    policy: ""       # policy.csv 路径
+  api_sign:
+    enabled: false
+    timestamp_skew_ms: 300000
+    apps: {}
+      # demo-app:
+      #   public_key_pem: |
+      #     -----BEGIN PUBLIC KEY-----
+      #     ...
+      #     -----END PUBLIC KEY-----
   idgen:
     mode: uuid       # uuid | snowflake

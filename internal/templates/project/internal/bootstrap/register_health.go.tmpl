@@ -1,0 +1,18 @@
+package bootstrap
+
+import (
+	"github.com/gin-gonic/gin"
+
+	apphealth "{{ .ModuleName }}/internal/app/health"
+	domainhealth "{{ .ModuleName }}/internal/domain/health"
+	healthinfra "{{ .ModuleName }}/internal/infrastructure/persistence/repository/health"
+	healthhttp "{{ .ModuleName }}/internal/interface/http/health"
+)
+
+func registerHealth(engine *gin.Engine) {
+	repo := healthinfra.NewMemoryRepository()
+	domainSvc := domainhealth.NewDomainService()
+	app := apphealth.NewApplication(repo, domainSvc)
+	h := healthhttp.NewHandler(app)
+	healthhttp.RegisterRoutes(engine, h)
+}

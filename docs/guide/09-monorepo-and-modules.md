@@ -5,7 +5,7 @@
 创建项目时务必指定真实模块路径：
 
 ```bat
-.\goeasy.exe new ordersvc --module github.com/yourorg/ordersvc
+goeasy-cli new ordersvc --module github.com/yourorg/ordersvc
 ```
 
 生成后 `go.mod` 首行为：
@@ -34,7 +34,7 @@ framework/
 也可手动指定：
 
 ```bat
-.\goeasy.exe new demo --module github.com/demo/demo --goeasy-replace ..\goeasy
+goeasy-cli new demo --module github.com/demo/demo --goeasy-replace ..\goeasy
 ```
 
 ## 业务独立仓库

@@ -1,0 +1,11 @@
+package command
+
+import "encoding/json"
+
+// ConsumeCommand 消费示范消息命令。
+type ConsumeCommand struct {
+	EventID   string
+	EventType string
+	TraceID   string
+	Payload   json.RawMessage
+}

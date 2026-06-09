@@ -1,0 +1,15 @@
+package mqdemo
+
+// PublishResult 发布结果。
+type PublishResult struct {
+	EventID   string `json:"event_id"`
+	EventType string `json:"event_type"`
+	Topic     string `json:"topic"`
+}
+
+// ConsumeResult 消费结果。
+type ConsumeResult struct {
+	EventID   string `json:"event_id"`
+	EventType string `json:"event_type"`
+	Duplicate bool   `json:"duplicate"`
+}

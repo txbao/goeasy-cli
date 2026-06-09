@@ -15,9 +15,9 @@
 ## 使用示例
 
 ```bat
-.\goeasy.exe new auth-svc --template auth --module github.com/demo/auth --download=false
-.\goeasy.exe new pay-svc --template payment --module github.com/demo/pay
-.\goeasy.exe new app --template monolith --module github.com/demo/app
+goeasy-cli new auth-svc --template auth --module github.com/demo/auth --download=false
+goeasy-cli new pay-svc --template payment --module github.com/demo/pay
+goeasy-cli new app --template monolith --module github.com/demo/app
 ```
 
 ## 内嵌 vs 远端

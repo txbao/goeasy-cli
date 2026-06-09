@@ -1,0 +1,31 @@
+# RPC Gateway（跨服务 gRPC）
+
+本目录放置 **防腐层（ACL）**：Gateway 实现共享 Port（`infrastructure/rpc/<remote>/port/`），内部使用 `pb` + `HTTPInfra.RPC` 长连接。业务模块通过 `app/<module>/port/` type alias 引用共享 Port。
+
+## 约定
+
+- **domain / app** 不得 `import` `api/proto` 生成的 `*.pb.go`
+- **interface** 不得直接 dial gRPC
+- bootstrap 通过 `RPCClientLazy(infra, "逻辑服务名")` 创建 Gateway；失败时 `RegisterRoutes` 返回 error，进程 `log.Fatal` 退出
+
+## 快速开始
+
+**HTTP 联调示范（独立 rpcdemo 模块）：**
+
+```bat
+goeasy-cli add rpcdemo --remote user --proto sys_roles --from-url <对端 sys_roles.proto>
+REM 或分步：goeasy-cli gen proto --from-url <对端 proto> 后 add rpcdemo --remote user --force
+```
+
+**业务模块内部调 gRPC（两步，推荐）：**
+
+```bat
+REM 步骤 1：共享 proto + gateway + port（无需 consumer）
+goeasy-cli add rpc sys_roles --remote demo1 --from-url <对端 sys_roles.proto>
+
+REM 步骤 2：绑定 consumer + register wire
+goeasy-cli add rpc bind sys_roles --consumer <module>
+REM 手改 application.go 注入 Gateway
+```
+
+详见 [14 RPC Gateway 接入](../../docs/guide/14-rpc-gateway-integration.md)。

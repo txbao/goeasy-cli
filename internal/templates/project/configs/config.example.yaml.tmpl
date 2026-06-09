@@ -2,50 +2,121 @@
 app_name: {{ .ProjectName }}
 env: dev
 
+# HTTP 服务监听（cmd/service；interface/http 路由挂载在 goeasy/httpx）
 http:
   host: 0.0.0.0
   port: 8080
+  cors:
+    enabled: true
+    allow_origins: ["*"]
+    allow_credentials: false
 
+# Consumer 健康探针 HTTP（cmd/consumer；与业务 http 端口分离，仅 /healthz 等）
+consumer_http:
+  enabled: true
+  host: 0.0.0.0
+  port: 18080
+
+# 数据库（业务 SQL 在 migrations/postgres 或 migrations/mysql，由 driver 决定）
 database:
   enabled: true
-  orm: sqlx
-  driver: postgres
+  orm: sqlx          # sqlx 执行 + goqu 构建 SQL；扩展: gorm | ent
+  driver: postgres   # postgres | mysql
   dsn: "postgres://user:pass@localhost:5432/{{ .ProjectName }}?sslmode=disable"
   max_open: 10
   max_idle: 5
+  table_prefix: ""   # 可选表前缀，如 ge_ → ge_<module>
 
+# 库表驱动代码生成（goeasy-cli add db；需 database.enabled + dsn + redis.enabled + addr）
+codegen:
+  app_style: service   # service | light_cqrs | full_cqrs（CLI 仅支持前两者；full 见文档）
+  create_omit: [id, created_at, updated_at, deleted_at]
+  update_omit: [created_at, updated_at, deleted_at]
+  soft_delete_column: deleted_at
+
+# Redis（goeasy/cache；enabled 时启动连接）
 redis:
   enabled: true
   addr: "127.0.0.1:6379"
-  password: "your-redis-password"
-  db: 0
+  password: "your-redis-password"  # 无密码留空
+  db: 0                          # 逻辑库 0-15
+  key_prefix: {{ .ProjectName }} # 实体缓存 key 前缀
+  default_ttl: 168h              # 默认缓存 TTL（一周）
 
+# 实体缓存（FindByID 等；需 redis.enabled；key: {key_prefix}:{module}:id:{id}）
+cache:
+  enabled: true
+  entity_ttl: 168h   # 空则使用 redis.default_ttl
+
+# 消息队列（goeasy/mq）
 mq:
   enabled: false
-  type: nsq
-  addr: "127.0.0.1:4150"
+  type: nsq          # nsq
+  nsqd_addr: "127.0.0.1:4150"      # Producer 直连
+  lookupd_addr: "127.0.0.1:4161"   # Consumer 发现
+  channel: "default"
+  outbox:
+    enabled: false               # 事务发件箱；开启需 database.enabled + 执行 000002_outbox 迁移
+    table: goeasy_outbox         # 表名，自动拼接 database.table_prefix
+    poll_interval: 5s            # relay 轮询间隔
+    batch_size: 50
+    max_retries: 5
 
+# gRPC 服务端/客户端（cmd/service；consumer 不 Serve gRPC）
 grpc:
   enabled: false
-  addr: ":9090"
+  addr: "0.0.0.0:9001"
   timeout_sec: 5
   max_retries: 2
 
+# 服务发现（小项目 direct；集群 optional etcd）
+discovery:
+  mode: direct              # direct | etcd
+  etcd:
+    enabled: false
+    endpoints: ["127.0.0.1:2379"]
+    lease_ttl_sec: 30
+    advertise_addr: ""   # 注册可达地址，空则回退 services[app_name] 或监听地址
+  services:
+    # 逻辑服务名(app_name): 对端 gRPC 可达 host:port（非 etcd 2379 端口）
+    {{ .ProjectName }}: "127.0.0.1:9001"
+
+# 微服务治理（goeasy/breaker、limiter、retry）
 governance:
   breaker:
     enabled: false
   limiter:
     enabled: false
+    mode: local          # local | redis | both（redis 需 redis.enabled）
     qps: 100
     burst: 200
+    dimensions: [global, ip]  # global | ip | user
   retry:
     enabled: false
     max_retries: 3
     backoff_ms: 100
 
+# 定时任务（goeasy/scheduler；业务任务在 bootstrap 注册）
+scheduler:
+  enabled: false
+  timezone: Asia/Shanghai
+
+# 可观测性（goeasy/trace、metrics、audit、health）
 observability:
+  logger:
+    level: info          # dev 可用 debug；生产建议 info
+    format: json         # json | text
+    output: stdout
+  sql:
+    enabled: true
+    slow_ms: 200         # 慢 SQL 阈值（毫秒）
   trace:
     enabled: true
+    exporter: noop       # noop=本地 trace_id；otlp=导出到 Collector（Tempo/Jaeger）
+    protocol: grpc       # grpc | http（otlp 时生效）
+    endpoint: ""         # 如 127.0.0.1:4317
+    insecure: true       # 本地开发可 true
+    sample_ratio: 1.0    # 采样率 0~1
   metrics:
     enabled: true
     path: /metrics
@@ -54,14 +125,29 @@ observability:
   health:
     enabled: true
     path: /healthz
+  mq:
+    log_payload: false
+    log_payload_max_bytes: 512
 
+# 企业公共组件（无业务规则；JWT/Casbin/ID 生成）
 enterprise:
-  jwt:
+  jwt:               # 管理后台
     enabled: false
-    secret: "change-me"
-    issuer: {{ .ProjectName }}
+    secret: "change-me-admin"
+    issuer: {{ .ProjectName }}-admin
     expire_min: 60
+  member_jwt:        # H5 会员（独立密钥，按需启用）
+    enabled: false
+    secret: "change-me-member"
+    issuer: {{ .ProjectName }}-member
+    expire_min: 10080
   casbin:
     enabled: false
+    model: ""        # 文件路径或内联 model 文本
+    policy: ""       # policy.csv 路径
+  api_sign:
+    enabled: false
+    timestamp_skew_ms: 300000
+    apps: {}
   idgen:
-    mode: uuid
+    mode: uuid       # uuid | snowflake

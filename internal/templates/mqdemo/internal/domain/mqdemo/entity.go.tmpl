@@ -1,0 +1,33 @@
+package mqdemo
+
+import "encoding/json"
+
+// DemoMessage 示范消息实体（含校验与发布行为）。
+type DemoMessage struct {
+	eventType string
+	payload   json.RawMessage
+}
+
+func NewDemoMessage(eventType string, payload json.RawMessage) (*DemoMessage, error) {
+	if eventType == "" {
+		return nil, ErrEmptyEventType
+	}
+	normalized, err := normalizePayload(payload)
+	if err != nil {
+		return nil, err
+	}
+	return &DemoMessage{eventType: eventType, payload: normalized}, nil
+}
+
+func (m *DemoMessage) EventType() string            { return m.eventType }
+func (m *DemoMessage) Payload() json.RawMessage     { return m.payload }
+
+func normalizePayload(payload json.RawMessage) (json.RawMessage, error) {
+	if len(payload) == 0 {
+		return json.RawMessage("{}"), nil
+	}
+	if !json.Valid(payload) {
+		return nil, ErrInvalidPayload
+	}
+	return payload, nil
+}

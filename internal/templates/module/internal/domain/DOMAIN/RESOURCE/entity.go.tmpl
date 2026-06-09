@@ -1,0 +1,43 @@
+package {{ .Resource }}
+
+import "errors"
+
+var (
+	ErrNotFound        = errors.New("{{ .ModuleSnake }}: not found")
+	ErrAlreadyDisabled = errors.New("{{ .ModuleSnake }}: already disabled")
+	ErrAlreadyActive   = errors.New("{{ .ModuleSnake }}: already active")
+)
+
+// {{ .ModulePascal }} 领域实体（含行为，禁止外部直接改状态字段）。
+type {{ .ModulePascal }} struct {
+	id     string
+	active bool
+}
+
+func New{{ .ModulePascal }}(id string) *{{ .ModulePascal }} {
+	return &{{ .ModulePascal }}{id: id, active: true}
+}
+
+// Rehydrate{{ .ModulePascal }} 从持久化层重建实体（仅供 infrastructure 使用）。
+func Rehydrate{{ .ModulePascal }}(id string, active bool) *{{ .ModulePascal }} {
+	return &{{ .ModulePascal }}{id: id, active: active}
+}
+
+func (e *{{ .ModulePascal }}) ID() string  { return e.id }
+func (e *{{ .ModulePascal }}) Active() bool { return e.active }
+
+func (e *{{ .ModulePascal }}) Disable() error {
+	if !e.active {
+		return ErrAlreadyDisabled
+	}
+	e.active = false
+	return nil
+}
+
+func (e *{{ .ModulePascal }}) Enable() error {
+	if e.active {
+		return ErrAlreadyActive
+	}
+	e.active = true
+	return nil
+}

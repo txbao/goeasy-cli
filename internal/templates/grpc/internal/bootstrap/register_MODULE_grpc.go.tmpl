@@ -1,0 +1,33 @@
+package bootstrap
+
+import (
+	"{{ .GoEasyModule }}/app"
+	"{{ .GoEasyModule }}/grpcx"
+
+	"{{ .ModuleName }}/internal/infrastructure/shared/dbx"
+	{{ .ModuleAlias }}app "{{ .ModuleName }}/internal/app/{{ .Domain }}/{{ .Resource }}"
+	{{ .ModuleAlias }}domain "{{ .ModuleName }}/internal/domain/{{ .Domain }}/{{ .Resource }}"
+	{{ .ModuleAlias }}infra "{{ .ModuleName }}/internal/infrastructure/{{ .Domain }}/persistence/{{ .Resource }}"
+	{{ .ModuleAlias }}grpc "{{ .ModuleName }}/internal/interface/grpc/{{ .Domain }}/{{ .Resource }}"
+)
+
+// Register{{ .ModulePascal }}GRPC 装配 {{ .ModuleSnake }} 模块 gRPC 服务（与 HTTP register_{{ .ModuleSnake }} 共用 Application 逻辑）。
+func Register{{ .ModulePascal }}GRPC(s *grpcx.Server, infra app.HTTPInfra) {
+	if s == nil {
+		return
+	}
+	var repo {{ .ModuleAlias }}domain.Repository
+{{- if .WithPG }}
+	if sqlxDB := infra.DB.SQLX(); sqlxDB != nil {
+		table := dbx.TableName(infra.TablePrefix, "{{ .ModuleSnake }}")
+		repo = {{ .ModuleAlias }}infra.NewPGRepository(sqlxDB, infra.DBDriver, table, infra.Cache, infra.RedisKeyPrefix, "{{ .ModuleSnake }}", infra.EntityCacheEnabled, infra.EntityCacheTTL)
+	} else {
+		repo = {{ .ModuleAlias }}infra.NewRepository()
+	}
+{{- else }}
+	repo = {{ .ModuleAlias }}infra.NewRepository()
+{{- end }}
+	dom := {{ .ModuleAlias }}domain.NewDomainService()
+	application := {{ .ModuleAlias }}app.NewApplication(repo, dom)
+	{{ .ModuleAlias }}grpc.Register(s, application)
+}

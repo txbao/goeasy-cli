@@ -1,0 +1,38 @@
+package mqdemo
+
+import (
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+	zresp "{{ .GoEasyModule }}/response"
+	"{{ .GoEasyModule }}/validator"
+
+	appmqdemo "{{ .ModuleName }}/internal/app/mqdemo"
+)
+
+// Handler HTTP 适配：调用 Application Dispatch。
+type Handler struct {
+	app appmqdemo.MessageDispatch
+}
+
+func NewHandler(app appmqdemo.MessageDispatch) *Handler {
+	return &Handler{app: app}
+}
+
+func (h *Handler) Publish(c *gin.Context) {
+	var req PublishRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		zresp.Fail(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	if err := validator.Validate(req); err != nil {
+		zresp.Fail(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	result, err := h.app.Dispatch(c.Request.Context(), req)
+	if err != nil {
+		zresp.Fail(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	zresp.Success(c, PublishResponse(result))
+}

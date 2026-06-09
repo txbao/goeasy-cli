@@ -1,0 +1,158 @@
+package {{ .Resource }}
+
+import (
+	"context"
+	"encoding/json"
+	"errors"
+	"time"
+
+	"github.com/doug-martin/goqu/v9"
+	"github.com/jmoiron/sqlx"
+
+	domain "{{ .ModuleName }}/internal/domain/{{ .Domain }}/{{ .Resource }}"
+	"{{ .ModuleName }}/internal/infrastructure/shared/dbx"
+	zcache "{{ .GoEasyModule }}/cache"
+	zcachekey "{{ .GoEasyModule }}/cachekey"
+)
+
+// PGRepository 名字驱动 add crud 占位实现（id/active 桩列）；签名与 register 及 add db crud 一致。
+type PGRepository struct {
+	dbx       *dbx.DB
+	table     string
+	module    string
+	cache     zcache.Cache
+	keyPrefix string
+	cacheOn   bool
+	cacheTTL  time.Duration
+}
+
+func NewPGRepository(sqlxDB *sqlx.DB, driver, table string, c zcache.Cache, keyPrefix, module string, cacheOn bool, cacheTTL time.Duration) domain.Repository {
+	if sqlxDB == nil {
+		panic("{{ .ModuleSnake }}: nil sqlx.DB")
+	}
+	if table == "" {
+		table = "{{ .ModuleSnake }}"
+	}
+	if module == "" {
+		module = "{{ .ModuleSnake }}"
+	}
+	return &PGRepository{
+		dbx: dbx.New(sqlxDB, driver), table: table,
+		module: module, cache: c, keyPrefix: keyPrefix, cacheOn: cacheOn, cacheTTL: cacheTTL,
+	}
+}
+
+func (r *PGRepository) invalidateEntityCache(ctx context.Context, id string) {
+	if !r.cacheOn || r.cache == nil {
+		return
+	}
+	_ = zcachekey.DeleteEntity(ctx, r.cache, r.keyPrefix, r.module, id)
+}
+
+type placeholderRow struct {
+	ID     string `db:"id"`
+	Active bool   `db:"active"`
+}
+
+func (r *PGRepository) FindByID(ctx context.Context, id string) (*domain.Aggregate, error) {
+	var row placeholderRow
+	if r.cacheOn && r.cache != nil {
+		if raw, err := zcachekey.GetEntityBytes(ctx, r.cache, r.keyPrefix, r.module, id); err == nil {
+			if json.Unmarshal(raw, &row) == nil {
+				return domain.NewAggregateFromPersistence(row.ID, row.Active), nil
+			}
+		} else if !errors.Is(err, zcache.ErrNotFound) {
+			return nil, err
+		}
+	}
+	ds := r.dbx.Qu.From(r.table).Select("id", "active").Where(goqu.Ex{"id": id})
+	sql, args, err := ds.ToSQL()
+	if err != nil {
+		return nil, err
+	}
+	if err := dbx.GetContext(ctx, r.dbx, &row, sql, args...); err != nil {
+		if dbx.IsNotFound(err) {
+			return nil, domain.ErrNotFound
+		}
+		return nil, err
+	}
+	if r.cacheOn && r.cache != nil {
+		if raw, err := json.Marshal(&row); err == nil {
+			_ = zcachekey.SetEntityBytes(ctx, r.cache, r.keyPrefix, r.module, id, raw, r.cacheTTL)
+		}
+	}
+	return domain.NewAggregateFromPersistence(row.ID, row.Active), nil
+}
+
+func (r *PGRepository) Save(ctx context.Context, agg *domain.Aggregate) error {
+	root := agg.Root()
+	ds := r.dbx.Qu.Insert(r.table).
+		Rows(goqu.Record{"id": root.ID(), "active": root.Active()}).
+		OnConflict(goqu.DoUpdate("id", goqu.Record{"active": root.Active()}))
+	sql, args, err := ds.ToSQL()
+	if err != nil {
+		return err
+	}
+	_, err = dbx.ExecContext(ctx, r.dbx, sql, args...)
+	if err != nil {
+		return err
+	}
+	r.invalidateEntityCache(ctx, root.ID())
+	return nil
+}
+
+func (r *PGRepository) List(ctx context.Context, page, pageSize int) ([]*domain.Aggregate, int64, error) {
+	if page < 1 {
+		page = 1
+	}
+	if pageSize < 1 {
+		pageSize = 20
+	}
+	countSQL, countArgs, err := r.dbx.Qu.From(r.table).Select(goqu.COUNT("*")).ToSQL()
+	if err != nil {
+		return nil, 0, err
+	}
+	var total int64
+	if err := dbx.GetContext(ctx, r.dbx, &total, countSQL, countArgs...); err != nil {
+		return nil, 0, err
+	}
+	if total == 0 {
+		return []*domain.Aggregate{}, 0, nil
+	}
+	offset := (page - 1) * pageSize
+	ds := r.dbx.Qu.From(r.table).Select("id", "active").Offset(uint(offset)).Limit(uint(pageSize))
+	sql, args, err := ds.ToSQL()
+	if err != nil {
+		return nil, 0, err
+	}
+	var rows []placeholderRow
+	if err := dbx.SelectContext(ctx, r.dbx, &rows, sql, args...); err != nil {
+		return nil, 0, err
+	}
+	out := make([]*domain.Aggregate, 0, len(rows))
+	for _, row := range rows {
+		out = append(out, domain.NewAggregateFromPersistence(row.ID, row.Active))
+	}
+	return out, total, nil
+}
+
+func (r *PGRepository) Delete(ctx context.Context, id string) error {
+	ds := r.dbx.Qu.Delete(r.table).Where(goqu.Ex{"id": id})
+	sql, args, err := ds.ToSQL()
+	if err != nil {
+		return err
+	}
+	res, err := dbx.ExecContext(ctx, r.dbx, sql, args...)
+	if err != nil {
+		return err
+	}
+	n, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if n == 0 {
+		return domain.ErrNotFound
+	}
+	r.invalidateEntityCache(ctx, id)
+	return nil
+}

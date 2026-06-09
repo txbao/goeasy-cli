@@ -1,0 +1,13 @@
+package middleware
+
+import (
+	"github.com/gin-gonic/gin"
+
+	goeasyapp "{{ .GoEasyModule }}/app"
+	zhttpx "{{ .GoEasyModule }}/httpx"
+)
+
+// RequirePermission Casbin RBAC（enterprise.casbin.enabled）；subject 默认 jwt_subject。
+func RequirePermission(infra goeasyapp.HTTPInfra, obj, act string) gin.HandlerFunc {
+	return zhttpx.RequireCasbin(infra.Casbin, obj, act)
+}

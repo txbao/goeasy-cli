@@ -1,0 +1,17 @@
+package {{ .Resource }}
+
+import "context"
+
+// DomainService 跨实体/复杂规则占位。
+type DomainService struct{}
+
+func NewDomainService() *DomainService {
+	return &DomainService{}
+}
+
+func (d *DomainService) Validate(_ context.Context, agg *Aggregate) error {
+	if agg == nil || agg.Root() == nil {
+		return ErrNotFound
+	}
+	return nil
+}

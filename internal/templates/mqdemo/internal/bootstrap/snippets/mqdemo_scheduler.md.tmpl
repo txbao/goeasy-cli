@@ -1,0 +1,15 @@
+# mqdemo 调度扩展（预留）
+
+当 `goeasy/scheduler` 有真实实现后，可在 `register_mqdemo` 中追加：
+
+```go
+// infra.Cron.Register("mqdemo-heartbeat", "0 * * * *", func(ctx context.Context) error {
+//     _, err := application.Dispatch(ctx, command.PublishCommand{
+//         EventType: domain.DefaultTopic,
+//         Payload:   json.RawMessage(`{"source":"scheduler"}`),
+//     })
+//     return err
+// })
+```
+
+HTTP、`goeasy-cli mq publish` 与 Scheduler 应共用 `Application.Dispatch`。

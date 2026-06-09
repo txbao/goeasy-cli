@@ -1,0 +1,33 @@
+package bootstrap
+
+import (
+	"context"
+	"fmt"
+
+	goeasyapp "{{ .GoEasyModule }}/app"
+	"github.com/txbao/goeasy/grpcx"
+)
+
+// RPCClient 从 HTTPInfra 获取长连接 gRPC 客户端（阻塞 dial；对端必须已就绪）。
+func RPCClient(infra goeasyapp.HTTPInfra, service string) (*grpcx.Client, error) {
+	if infra.RPC == nil {
+		return nil, fmt.Errorf("HTTPInfra.RPC is nil: ensure app.InitInfra() before RegisterRoutes")
+	}
+	cli, err := infra.RPC.Client(context.Background(), service)
+	if err != nil {
+		return nil, fmt.Errorf("grpc client %q: %w (check discovery.services, remote service running; goeasy-cli grpc resolve --service %s)", service, err, service)
+	}
+	return cli, nil
+}
+
+// RPCClientLazy 非阻塞 dial，HTTP 启动阶段装配 Gateway 时使用（对端未启动时仍可监听 http.port）。
+func RPCClientLazy(infra goeasyapp.HTTPInfra, service string) (*grpcx.Client, error) {
+	if infra.RPC == nil {
+		return nil, fmt.Errorf("HTTPInfra.RPC is nil: ensure app.InitInfra() before RegisterRoutes")
+	}
+	cli, err := infra.RPC.ClientLazy(context.Background(), service)
+	if err != nil {
+		return nil, fmt.Errorf("grpc client lazy %q: %w (check discovery.services.<service> in config)", service, err)
+	}
+	return cli, nil
+}

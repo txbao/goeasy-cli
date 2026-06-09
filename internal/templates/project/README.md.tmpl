@@ -14,7 +14,7 @@ internal/
   infrastructure/client|cache|mq/
   bootstrap/                    依赖注入与路由注册
 configs/
-api/proto|openapi/
+api/proto|examples|openapi/
 deploy/docker|k8s/
 docs/  migrations/  test/
 ```
@@ -41,7 +41,7 @@ goeasy new {{ .ProjectName }} --module github.com/yourorg/{{ .ProjectName }} --d
 ```
 
 - 框架运行时：`goeasy/app` + `goeasy/config`
-- 业务路由：`internal/bootstrap/wire.go`（依赖注入，Handler 不直接 new 仓储）
+- 业务路由：`internal/bootstrap/wire.go` + `modules.go` + `register_<module>.go`（`goeasy add module/crud` 生成）
 - 健康检查：`GET http://localhost:8080/health`
 - 框架探针：`GET http://localhost:8080/healthz`（配置开启时）
 

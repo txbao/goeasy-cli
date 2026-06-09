@@ -1,0 +1,20 @@
+package {{ .EventSnake }}
+
+import "time"
+
+// {{ .EventPascal }} 集成领域事件（独立事件包；业务模块内事件请用 domain/<bc>/<resource>/event.go）。
+type {{ .EventPascal }} struct {
+	OccurredAt time.Time
+	Payload    map[string]any
+}
+
+func New{{ .EventPascal }}(payload map[string]any) {{ .EventPascal }} {
+	return {{ .EventPascal }}{
+		OccurredAt: time.Now(),
+		Payload:    payload,
+	}
+}
+
+func (e {{ .EventPascal }}) Name() string {
+	return "{{ .EventSnake }}"
+}

@@ -36,6 +36,12 @@ func (s *ServiceHealth) MarkHealthy(message string) error {
 
 脚手架 `health` 模块用技术场景演示聚合，**不会**生成 User/Order 等业务模板。
 
+## 库表驱动生成（add db）
+
+迁移落库后，可用 `goeasy add db crud` 从 PostgreSQL 自省列类型，生成 entity、`repository_pg`（goqu）与 HTTP CRUD。系统列（`id`、时间戳、软删）按 `configs/config.yaml` 中 `codegen` 段裁剪，避免 Create/Update 请求携带不可写字段。
+
+复杂表（RBAC、多租户、JSONB 规则）建议生成后再手改仓储。规划见 [库表驱动](../../docs/plans/goeasy-cli-database-first-codegen.md)，命令见 [06](06-goeasy-cli-commands.md#add-db库表驱动postgres--mysql)。
+
 ## 领域服务
 
 当规则涉及多个实体或不适合放在单个实体上时，使用 `domain/<m>/service.go`。
@@ -48,46 +54,123 @@ Application → DomainService / Entity → Repository
 
 读用例（Query）可以只读仓储返回 DTO，但写用例必须经过领域行为。
 
-## 命令查询职责分离(CQRS) 目录约定
+## 应用层风格（app_style）
+
+默认 **`service`**：`Application` 上直接暴露 `Create/Get/List/Update/Delete`，文件更少，适合 CRUD 业务。
+
+可选 **`light_cqrs`**：`command/` + `query/` 子包；`health` 示范模块固定为此风格。
+
+**`full_cqrs`**：CLI 不生成，需手工演进读模型与投影。详见 [18 应用层风格](18-app-style.md)。
+
+### service（默认）
 
 ```text
-app/<module>/
-├── application.go      门面，对外统一入口
-├── command_handler.go  写用例入口
-├── query_handler.go    读用例入口
-├── command/            每个写命令一个文件
-├── query/              每个查询一个文件
-├── dto.go
-└── port.go             对外部系统端口（可选）
+app/<domain>/<resource>/
+├── application.go
+└── dto.go
+```
+
+Handler 调用：`h.app.Create(...)` / `h.app.Get(...)` / `h.app.List(...)`。
+
+### light_cqrs（可选）
+
+```text
+app/<domain>/<resource>/
+├── application.go
+├── command/
+├── query/
+├── list.go
+├── port/
+└── dto.go
 ```
 
 - **Command**：创建、更新、状态变更
-- **Query**：列表、详情、报表
+- **Query**：列表、详情
 
-Handler（HTTP）只依赖 `Application` 或 Handler 结构体，不直接 new Repository。
+Handler 调用：`h.app.Commands().Xxx()` / `h.app.Queries().Get()`（List 可走 `h.app.List()` 门面）。
+
+Handler（HTTP）只依赖 `Application`，不直接 new Repository。
+
+### HTTP 按客户端 + 业务域分包
+
+```text
+internal/interface/http/
+├── admin/<group>/<resource>/   # /api/v1/admin/<group>/<resource>  + AdminAuth
+├── h5/<group>/<resource>/      # /api/v1/h5/<group>/<resource>      + MemberAuth
+└── middleware/
+```
+
+示例（`sys_roles` + `codegen.domains.system`）：
+
+| 目录 | URL |
+|------|-----|
+| `admin/system/roles/` | `GET /api/v1/admin/system/roles/1` |
+| `h5/system/roles/` | `GET /api/v1/h5/system/roles/1` |
+
+- HTTP handler 包名为 **resource**（如 `roles`）；仍委托 `app/sys_roles` Application。
+- 各端 `ResponseDTO` 在 `http/<client>/<group>/<resource>/dto.go`；`app/<module>/dto.go` 为应用层共用。
+- 生成：`goeasy-cli add db crud --table sys_roles`（默认 `app_style: service`，读取 `codegen.domains`）；`--app-style light_cqrs` 可切换；`--domain system --resource roles` 可显式指定；`--client h5` 追加 H5 端。
+- 代码路径：`internal/domain/system/roles`、`internal/app/system/roles`、`internal/infrastructure/system/persistence/roles`。
 
 ## 依赖注入（bootstrap）
 
-```go
-func RegisterRoutes(engine *gin.Engine) {
-    repo := healthinfra.NewMemoryRepository()
-    domainSvc := domainhealth.NewDomainService()
-    app := apphealth.NewApplication(repo, domainSvc)
-    h := healthhttp.NewHandler(app)
-    healthhttp.RegisterRoutes(engine, h)
-}
+```text
+internal/bootstrap/
+├── wire.go                 # registerHealth + registerAllModules
+├── modules.go              # 各业务模块一行注册（CLI 自动追加）
+├── register_health.go
+└── register_<domain>.go    # BC 级 DI + 路由（CLI 生成）
 ```
 
-新增业务模块时复制该模式，保持 **interface → app → domain ← infrastructure**。
+`wire.go` 保持稳定；`goeasy add module/crud` 生成 `register_<module>.go` 并更新 `modules.go`。
 
 ## 新增业务模块推荐流程
 
-1. `goeasy add module <name>`
-2. 实现 `domain/<name>` 实体、聚合、仓储接口
-3. 实现 `infrastructure/persistence/<name>`
-4. 编写 `app/<name>` 的 command/query
-5. 添加 `interface/http/<name>` 与路由
-6. 在 `bootstrap/wire.go` 装配并注册路由
+**库表驱动：**
+
+1. `goeasy-cli add db crud --table <name>`
+2. 实现 `domain/<name>` 业务逻辑
+3. `go mod tidy` → `goeasy-cli migrate up`
+
+**契约驱动（先 API/Proto）：**
+
+1. 编写 `api/contracts/openapi/<name>.openapi.yaml`（及可选 `api/proto/<name>.proto`）
+2. `goeasy-cli gen http --from api/contracts/openapi/<name>.openapi.yaml` → `goeasy-cli gen contract`
+3. 手改 `domain` / `repository_pg`；落库后 `migrate up`
+
+详见 [15 契约驱动生成](15-contract-first.md)。
+
+## 业务模块 / 事件 / MQ 放哪一层
+
+GoEasy 采用 **层优先 + domain 布局**（非 `internal/order/interfaces|application` 纵向切分）。对照：
+
+| 能力 | 领域 `domain/` | 应用 `app/` | 接口 `interface/` | 基础设施 `infrastructure/` |
+|------|----------------|-------------|-------------------|---------------------------|
+| CRUD 业务模块 | `<bc>/<resource>/` entity、aggregate、repository 接口 | `<bc>/<resource>/` Application、dto、command/query | `http/<client>/<bc>/<resource>/` handler、router | `<bc>/persistence/<resource>/` repository_pg |
+| 模块内领域事件 | `<bc>/<resource>/event.go`（`add crud` 自带占位） | `port.go` 定义 Publisher 接口 | — | `mq/` 或 `<bc>/...` 实现发布 |
+| 跨模块集成事件 | `<bc>/event/<name>/`（`add event --domain <bc>`） | 手改接入 Command | — | `<bc>/event/<name>/publisher.go` |
+| 消息队列消费 | 事件类型、Topic 常量 | CommandHandler.Consume | `mq/<module>/` 反序列化 Envelope | `mq/consumer.go`；`cmd/consumer` 进程 |
+| 共享技术组件 | — | — | — | `shared/{dbx,cache,mq}`；运行时能力在 `goeasy` 模块 |
+
+**bootstrap**：`register_<domain>.go` 装配同限界上下文下多个模块（`sys_roles` + `sys_menus` 合并）；`modules.go` 每域一行 `RegisterSystem`。
+
+## 跨服务 gRPC（RPC Gateway）
+
+调用其它微服务 gRPC 时，使用 **Port 子包 `app/<m>/port/` + infrastructure/rpc ACL + HTTPInfra.RPC 长连接**，业务 Query 一行 `gateway.GetByID(ctx, id)`。`query` 子包只 import `port`，不 import 父包 `app/<m>`（避免 import cycle）。
+
+```bat
+goeasy-cli gen proto --from-url <对端 proto>
+goeasy-cli add rpcdemo --remote user
+```
+
+详见 [14 RPC Gateway 接入](14-rpc-gateway-integration.md)。MQ 接入见 [13 MQ 业务接入](13-mq-business-integration.md)。
+
+## 持久化（sqlx + goqu）
+
+- **sqlx**：执行 SQL、映射结构体 `db` 标签；连接来自 `goeasy/database.SQLX()`。
+- **goqu**：在 `internal/infrastructure/shared/dbx` 按 `database.driver` 选方言，仓储内 `ToSQL()` 后由 sqlx 执行。
+- 表名：`dbx.TableName(database.table_prefix, "<module>")`，与 `--with-migration` 一致。
+- 禁止用字符串拼接用户输入；存量业务表（如 RBAC `sys_roles`）需手写仓储列映射，勿用 CLI 占位 `id+active` 模板。
 
 ## 脚手架边界
 

@@ -6,17 +6,16 @@
 
 ## 步骤
 
-### 1. 进入脚手架目录并编译（若尚未编译）
+### 1. go install 安装
 
 ```bat
-cd goeasy-cli
-go build -o goeasy.exe .
+go install github.com/txbao/goeasy-cli@latest
 ```
 
 ### 2. 创建项目
 
 ```bat
-.\goeasy.exe new greet --module github.com/demo/greet --download=false
+goeasy-cli new greet --module github.com/demo/greet --download=false
 ```
 
 说明：

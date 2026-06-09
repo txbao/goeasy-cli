@@ -1,0 +1,35 @@
+//go:build integration
+
+package integration_test
+
+import (
+	"context"
+	"os"
+	"testing"
+
+	goeasyapp "{{ .GoEasyModule }}/app"
+	"{{ .GoEasyModule }}/config"
+
+	"{{ .ModuleName }}/internal/infrastructure/client"
+)
+
+// 集成示例：discovery.services 配置对端逻辑服务名即可。
+func TestGRPCClientExample(t *testing.T) {
+	cfgPath := os.Getenv("GOEASY_CONFIG")
+	if cfgPath == "" {
+		cfgPath = "configs/config.yaml"
+	}
+	cfg := config.MustLoad(cfgPath)
+	application := goeasyapp.New(cfg)
+	if err := application.InitInfra(); err != nil {
+		t.Fatal(err)
+	}
+	peer := os.Getenv("GOEASY_GRPC_PEER_SERVICE")
+	if peer == "" {
+		peer = "user"
+	}
+	if err := client.ExampleDial(application, peer); err != nil {
+		t.Fatal(err)
+	}
+	_ = context.Background()
+}

@@ -1,0 +1,42 @@
+package mqdemo
+
+import (
+	"context"
+
+	"{{ .ModuleName }}/internal/app/mqdemo/command"
+	domain "{{ .ModuleName }}/internal/domain/mqdemo"
+)
+
+// CommandHandler 写用例入口。
+type CommandHandler struct {
+	repo      domain.Repository
+	publisher MessagePublisher
+}
+
+func NewCommandHandler(repo domain.Repository, publisher MessagePublisher) *CommandHandler {
+	return &CommandHandler{repo: repo, publisher: publisher}
+}
+
+func (h *CommandHandler) Publish(ctx context.Context, cmd command.PublishCommand) (PublishResult, error) {
+	if _, err := domain.NewDemoMessage(cmd.EventType, cmd.Payload); err != nil {
+		return PublishResult{}, err
+	}
+	return h.publisher.Publish(ctx, cmd.EventType, cmd.Payload)
+}
+
+func (h *CommandHandler) Consume(ctx context.Context, cmd command.ConsumeCommand) (ConsumeResult, error) {
+	exists, err := h.repo.Exists(ctx, cmd.EventID)
+	if err != nil {
+		return ConsumeResult{}, err
+	}
+	if exists {
+		return ConsumeResult{EventID: cmd.EventID, EventType: cmd.EventType, Duplicate: true}, nil
+	}
+	if _, err := domain.NewDemoMessage(cmd.EventType, cmd.Payload); err != nil {
+		return ConsumeResult{}, err
+	}
+	if err := h.repo.Save(ctx, cmd.EventID); err != nil {
+		return ConsumeResult{}, err
+	}
+	return ConsumeResult{EventID: cmd.EventID, EventType: cmd.EventType}, nil
+}

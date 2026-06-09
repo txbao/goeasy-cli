@@ -1,0 +1,10 @@
+package command
+
+import "encoding/json"
+
+// PublishCommand 发布示范消息命令。
+type PublishCommand struct {
+	EventType string          `json:"event_type" validate:"required"`
+	Payload   json.RawMessage `json:"payload"`
+	Topic     string          `json:"topic"`
+}

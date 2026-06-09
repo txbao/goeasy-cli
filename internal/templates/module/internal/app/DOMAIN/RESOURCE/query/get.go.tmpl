@@ -1,0 +1,27 @@
+package query
+
+import (
+	"context"
+
+	domain "{{ .ModuleName }}/internal/domain/{{ .Domain }}/{{ .Resource }}"
+)
+
+type Handler struct {
+	repo      domain.Repository
+	domainSvc *domain.DomainService
+}
+
+func NewHandler(repo domain.Repository, domainSvc *domain.DomainService) *Handler {
+	return &Handler{repo: repo, domainSvc: domainSvc}
+}
+
+func (h *Handler) Get(ctx context.Context, id string) (*domain.Aggregate, error) {
+	agg, err := h.repo.FindByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if err := h.domainSvc.Validate(ctx, agg); err != nil {
+		return nil, err
+	}
+	return agg, nil
+}

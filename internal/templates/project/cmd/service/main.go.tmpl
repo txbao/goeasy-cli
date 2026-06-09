@@ -17,6 +17,7 @@ func main() {
 	cfg := config.MustLoad(*configPath)
 	application := app.New(cfg)
 	application.RegisterHTTP(bootstrap.RegisterRoutes)
+	application.RegisterGRPC(bootstrap.RegisterGRPCServers)
 	if err := application.Run(); err != nil {
 		log.Fatal(err)
 	}

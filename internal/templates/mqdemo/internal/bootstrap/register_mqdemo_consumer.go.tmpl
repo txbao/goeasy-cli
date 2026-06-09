@@ -1,0 +1,29 @@
+package bootstrap
+
+import (
+	"context"
+	"log"
+
+	goeasyapp "{{ .GoEasyModule }}/app"
+	goeasymq "{{ .GoEasyModule }}/mq"
+
+	appmqdemo "{{ .ModuleName }}/internal/app/mqdemo"
+	domain "{{ .ModuleName }}/internal/domain/mqdemo"
+	mqinfra "{{ .ModuleName }}/internal/infrastructure/mq"
+	repo "{{ .ModuleName }}/internal/infrastructure/persistence/repository/mqdemo"
+	mqhandler "{{ .ModuleName }}/internal/interface/mq/mqdemo"
+)
+
+// RegisterMQDemoConsumers 注册 mqdemo NSQ 消费者。
+func RegisterMQDemoConsumers(mqClient goeasymq.MQ, infra goeasyapp.HTTPInfra) {
+	repository := repo.NewMemoryRepository()
+	publisher := mqinfra.NewPublisher(mqClient, "mqdemo")
+	application := appmqdemo.NewApplication(repository, publisher)
+	handler := mqhandler.NewHandler(application, infra.MQLog)
+	consumer := mqinfra.NewConsumer(mqClient, handler)
+	topic := domain.DefaultTopic
+	if err := consumer.Subscribe(context.Background(), topic); err != nil {
+		log.Fatalf("mqdemo consumer subscribe %s: %v", topic, err)
+	}
+	log.Printf("mqdemo consumer subscribed topic=%s", topic)
+}
