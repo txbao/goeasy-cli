@@ -1,4 +1,4 @@
-# 12 NSQ 消息示范（mqdemo）
+# 21 NSQ 消息示范（mqdemo）
 
 基于 NSQ 的消息生产与消费示例，符合 DDD Lite 分层。按需生成，不随 `goeasy new` 默认内置。
 

@@ -1,4 +1,4 @@
-# 10 库表契约：OpenAPI 与 Proto（P2）
+# 20 库表契约：OpenAPI 与 Proto（P2）
 
 从数据库自省生成 `api/generated/openapi/*.openapi.yaml` 与 `api/proto/*.proto`，列/表**注释**来自 PG `col_description` / MySQL `COLUMN_COMMENT`。审阅后可复制到 `api/contracts/openapi/` 作为 SSOT。
 
@@ -60,5 +60,5 @@ goeasy-cli add db crud --table sys_roles --force --with-openapi --with-proto
 ## 下一步
 
 - [11 gRPC 项目集成](11-grpc-internal.md)
-- [09 项目配置 P0/P1](09-project-config-p0-p1.md)
+- [19 项目配置 P0/P1](19-project-config-p0-p1.md)
 - [06 CLI 命令](06-goeasy-cli-commands.md)

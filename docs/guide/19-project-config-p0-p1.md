@@ -1,4 +1,4 @@
-# 09 项目配置清单（P0 / P1）
+# 19 项目配置清单（P0 / P1）
 
 面向 `goeasy new` / `add db crud` 生成的业务项目（如 demo3）。运行时能力见 [实体缓存](../runtime/entity-cache.md)、[HTTP 中间件](../runtime/http-middleware.md)。
 
@@ -159,7 +159,7 @@ goeasy-cli add db proto --table sys_roles --force
 
 或与 CRUD 一次生成：`add db crud --table sys_roles --force --with-openapi --with-proto`。
 
-详见 [10 库表契约](10-db-openapi-proto.md)。
+详见 [20 库表契约](20-db-openapi-proto.md)。
 
 ## 9. P3：gRPC + 服务发现（optional）
 
@@ -189,6 +189,6 @@ goeasy-cli gen proto
 ## 下一步
 
 - [11 gRPC 项目集成](11-grpc-internal.md)
-- [10 库表契约 OpenAPI/Proto](10-db-openapi-proto.md)
+- [20 库表契约 OpenAPI/Proto](20-db-openapi-proto.md)
 - [06 CLI 命令](06-goeasy-cli-commands.md)
 - [04 项目结构](04-project-structure.md)

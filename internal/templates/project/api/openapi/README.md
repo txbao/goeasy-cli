@@ -7,4 +7,4 @@
 
 可用 Swagger UI、Redoc 或 CI 契约测试加载本目录 YAML。
 
-详见 `goeasy-cli/docs/guide/10-db-openapi-proto.md`。
+详见 `goeasy-cli/docs/guide/20-db-openapi-proto.md`。

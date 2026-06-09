@@ -79,8 +79,8 @@ JWT、Casbin 等提供**引擎级**封装，权限模型与策略仍属业务代
 
 - 实体缓存与 Redis：[实体缓存](../runtime/entity-cache.md)
 - HTTP 中间件：[HTTP 中间件](../runtime/http-middleware.md)
-- **项目配置清单（demo3）**：[09 项目配置 P0/P1](09-project-config-p0-p1.md)
-- **库表 OpenAPI/Proto**：[10 库表契约](10-db-openapi-proto.md)（goeasy-cli）
+- **项目配置清单（demo3）**：[19 项目配置 P0/P1](19-project-config-p0-p1.md)
+- **库表 OpenAPI/Proto**：[20 库表契约](20-db-openapi-proto.md)（goeasy-cli）
 - **gRPC 内部调用**：[11 gRPC 内部调用](11-grpc-internal.md)（goeasy-cli）
 - **运行时 gRPC**：[gRPC 与服务发现](../runtime/grpc-discovery.md)
 

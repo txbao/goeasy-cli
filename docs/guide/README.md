@@ -20,10 +20,12 @@
 | 模板变体 | [08 项目模板](08-templates.md) | 15 分钟 |
 | 工程化 | [09 Monorepo 与 Module](09-monorepo-and-modules.md) | 15 分钟 |
 | 架构对照 | [10 架构对照](10-architecture-overview.md) | 15 分钟 |
-| 库表契约 | [10 OpenAPI/Proto](10-db-openapi-proto.md) | 15 分钟 |
+| 项目配置 | [19 项目配置 P0/P1](19-project-config-p0-p1.md) | 15 分钟 |
+| 库表契约 | [20 OpenAPI/Proto](20-db-openapi-proto.md) | 15 分钟 |
 | 契约驱动 | [15 契约驱动生成](15-contract-first.md) | 20 分钟 |
 | gRPC 项目集成 | [11 gRPC 项目集成](11-grpc-internal.md) | 20 分钟 |
 | 跨服务 gRPC | [12 跨服务 gRPC](12-grpc-cross-service.md) | 15 分钟 |
+| NSQ 示范 | [21 NSQ 消息示范](21-nsq-mqdemo.md) | 15 分钟 |
 | RPC Gateway | [14 RPC Gateway 接入](14-rpc-gateway-integration.md) | 20 分钟 |
 | 运行时能力 | [16 治理/缓存/观测/安全](16-runtime-capabilities.md) | 30 分钟 |
 | 观测栈 | [17 Prometheus/Loki/Tempo/Grafana](17-observability-stack.md) | 20 分钟 |

@@ -65,6 +65,6 @@ go run ./cmd/service
 
 ## 下一步
 
-- [10 库表契约](10-db-openapi-proto.md)
+- [20 库表契约](20-db-openapi-proto.md)
 - [11 gRPC 项目集成](11-grpc-internal.md)
 - [06 CLI 命令](06-goeasy-cli-commands.md)

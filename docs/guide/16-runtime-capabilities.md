@@ -226,6 +226,6 @@ open := engine.Group("/open/v1", middleware.OpenPlatformAuth(infra))
 ## 下一步
 
 - [17 观测栈](17-observability-stack.md)
-- [09 项目配置 P0/P1](09-project-config-p0-p1.md)
+- [19 项目配置 P0/P1](19-project-config-p0-p1.md)
 - [HTTP 中间件](../runtime/http-middleware.md)
 - [13 MQ 业务接入](13-mq-business-integration.md)

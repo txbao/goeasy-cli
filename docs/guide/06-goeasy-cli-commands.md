@@ -166,7 +166,7 @@ go run cmd\consumer\main.go
 goeasy-cli mq publish --event-type demo.message.published --payload "{\"text\":\"hello\"}"
 ```
 
-详见 [12 NSQ 消息示范](12-nsq-mqdemo.md)。业务模块接入见 [13 MQ 业务接入](13-mq-business-integration.md)。
+详见 [21 NSQ 消息示范](21-nsq-mqdemo.md)。业务模块接入见 [13 MQ 业务接入](13-mq-business-integration.md)。
 
 **加跨服务 gRPC 示范（rpcdemo）：**
 
@@ -301,11 +301,11 @@ codegen:
           resource: roles
         sys_menus:
           resource: menus
-    iam:
-      table_prefix: sys_
+    order:
+      table_prefix: ord_
       modules:
-        sys_apis:
-          resource: apis
+        ord_orders:
+          resource: orders
 ```
 
 - `table_prefix` 最长匹配 → domain；`modules` 可显式指定 resource（**务必配置**，否则 resource 默认为表名如 `sys_apis`）。
@@ -327,7 +327,7 @@ codegen:
 - **实体字段**：`entity` 结构体字段为导出（PascalCase，`id` 列生成 `ID`）；保留 `SetXxx`/`Rehydrate`，**不**生成与字段同名的 Getter（避免 `field and method with the same name`）；DTO/仓储使用 `root.Field` 访问
 - **循环导入**：`query/list` 只返回 `[]*domain.Aggregate`；`app/<module>/list.go` 提供 `Application.List` → `ListResult`。若 `query/list.go` 仍含 `import .../internal/app/<module>` 或 `app.ListResult`，属于旧生成物；CLI 会在无 `--force` 时尝试自动覆盖该文件，并提示对 `app/list.go`、`handler_crud.go` 使用 `--force`
 - **参数校验**：HTTP 在 `ShouldBindJSON` 后调用 `goeasy/validator.Validate`（Command 与分页 `Page` 带 `validate` 标签）
-- **实体缓存（P1）**：`repository_pg` 的 `FindByID` 读 Redis（key `{key_prefix}:{module}:id:{id}`），`Update`/`Delete` 删缓存；需 `redis.enabled` + `cache.enabled`，见 [09 项目配置 P0/P1](09-project-config-p0-p1.md)
+- **实体缓存（P1）**：`repository_pg` 的 `FindByID` 读 Redis（key `{key_prefix}:{module}:id:{id}`），`Update`/`Delete` 删缓存；需 `redis.enabled` + `cache.enabled`，见 [19 项目配置 P0/P1](19-project-config-p0-p1.md)
 
 **若曾用名字驱动生成过同模块：** 再跑 `add db crud` 会出现 `info: skip existing` 并保留旧占位代码，必须加 `--force` 才会按库表覆盖。
 
@@ -363,7 +363,7 @@ go mod tidy
 | `undefined: app.UpdateCommand` / `h.app.Update undefined` | 同上，service 风格缺 Update/Delete | 同上；或已有表时 `add db crud --table <m> --force` |
 | `Commands().Create` 返回值不匹配 | light_cqrs 旧版 `command/create.go` 返回 `error` | 升级 CLI 后 `goeasy-cli add crud <m> --app-style light_cqrs` |
 | `too many arguments in call to NewPGRepository` | 旧版占位 `repository_pg.go` 为 3 参数，register 为 8 参数 | 升级 CLI 后 `goeasy-cli add crud <m> --force` 重写 `repository_pg.go` |
-| `redis.enabled is false` / `database.dsn is empty`（`add db crud`） | 库表驱动前置配置未就绪 | 见 [09 项目配置 P0/P1](09-project-config-p0-p1.md) 配齐 database + redis 后再执行 |
+| `redis.enabled is false` / `database.dsn is empty`（`add db crud`） | 库表驱动前置配置未就绪 | 见 [19 项目配置 P0/P1](19-project-config-p0-p1.md) 配齐 database + redis 后再执行 |
 
 名字驱动（`add crud`）与库表驱动（`add db crud`）的 **service / light_cqrs** app 层现已与 HTTP、gRPC codegen 对齐；`add db proto` / `gen grpc` 依赖已有 app 层，请先修好 app 再生成 gRPC。
 
@@ -483,7 +483,7 @@ migrations/
 
 需 `database.enabled: true`，`driver` 为 `postgres` 或 `mysql`。版本表 `_sqlx_migrations`（`version` + `dirty`）由 golang-migrate 自动创建。
 
-**注意：** `migrate goto` 只表示 SQL 迁移版本，**不能**按表名生成 proto/OpenAPI；表契约请用 `add db proto` / `add db openapi`（见 [10 库表契约](10-db-openapi-proto.md)）。
+**注意：** `migrate goto` 只表示 SQL 迁移版本，**不能**按表名生成 proto/OpenAPI；表契约请用 `add db proto` / `add db openapi`（见 [20 库表契约](20-db-openapi-proto.md)）。
 
 ## upgrade
 
@@ -499,4 +499,4 @@ migrations/
 
 ## 下一步
 
-[07 DDD Lite 实践](07-ddd-lite-practices.md) · [12 跨服务 gRPC](12-grpc-cross-service.md) · [14 RPC Gateway](14-rpc-gateway-integration.md) · [12 NSQ 消息示范](12-nsq-mqdemo.md) · [13 MQ 业务接入](13-mq-business-integration.md)
+[07 DDD Lite 实践](07-ddd-lite-practices.md) · [12 跨服务 gRPC](12-grpc-cross-service.md) · [14 RPC Gateway](14-rpc-gateway-integration.md) · [21 NSQ 消息示范](21-nsq-mqdemo.md) · [13 MQ 业务接入](13-mq-business-integration.md)

@@ -157,6 +157,6 @@ go test -tags=integration ./test/integration/...
 ## 相关文档
 
 - [12 跨服务 gRPC 调用](12-grpc-cross-service.md)
-- [10 库表契约](10-db-openapi-proto.md)
-- [09 项目配置](09-project-config-p0-p1.md)
+- [20 库表契约](20-db-openapi-proto.md)
+- [19 项目配置](19-project-config-p0-p1.md)
 - [gRPC 与服务发现](../runtime/grpc-discovery.md)

@@ -30,7 +30,7 @@ database:
 | `driver/gorm/` | 可选 GORM |
 | `driver/ent/` | 可选 Ent |
 
-实体缓存（P1）：`redis.enabled` + `cache.enabled` 后，`FindByID` 使用 key `{key_prefix}:{module}:id:{id}`（逻辑模块名）；`Update`/`Delete` 失效缓存。配置说明见 monorepo `goeasy-cli/docs/guide/09-project-config-p0-p1.md`。
+实体缓存（P1）：`redis.enabled` + `cache.enabled` 后，`FindByID` 使用 key `{key_prefix}:{module}:id:{id}`（逻辑模块名）；`Update`/`Delete` 失效缓存。配置说明见 monorepo `goeasy-cli/docs/guide/19-project-config-p0-p1.md`。
 
 ## 依赖方向
 

@@ -138,4 +138,4 @@ NSQ → cmd/consumer
 
 ## 配置
 
-与 [12 NSQ 消息示范](12-nsq-mqdemo.md) 相同：`mq.enabled`、`nsqd_addr`、`lookupd_addr`；consumer 使用 `consumer_http` 做探活。
+与 [21 NSQ 消息示范](21-nsq-mqdemo.md) 相同：`mq.enabled`、`nsqd_addr`、`lookupd_addr`；consumer 使用 `consumer_http` 做探活。
