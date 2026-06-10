@@ -18,7 +18,7 @@
 
 | 工具 | 作用 |
 |------|------|
-| `goeasy migrate goto <version>` | **迁移版本号**，与表无关 |
+| `goeasy-cli migrate goto <version>` | **迁移版本号**，与表无关 |
 | `goeasy add db proto --table sys_roles` | 按**当前表结构**生成 gRPC 契约 |
 | `goeasy add db openapi --table sys_roles` | 按表结构生成 OpenAPI 3 |
 

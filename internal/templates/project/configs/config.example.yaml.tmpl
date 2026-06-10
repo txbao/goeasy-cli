@@ -57,7 +57,7 @@ mq:
   channel: "default"
   outbox:
     enabled: false               # 事务发件箱；开启需 database.enabled + 执行 000002_outbox 迁移
-    table: goeasy_outbox         # 表名，自动拼接 database.table_prefix
+    table: _outbox         # 表名，自动拼接 database.table_prefix
     poll_interval: 5s            # relay 轮询间隔
     batch_size: 50
     max_retries: 5

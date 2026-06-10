@@ -96,6 +96,7 @@ return infra.DB.Transaction(ctx, func(txCtx context.Context) error {
 ```
 
 前置：`database.enabled`、`mq.enabled`、`mq.outbox.enabled`，并执行 `migrations/*/000002_outbox.up.sql`。
+默认表名 `goeasy_outbox`（`mq.outbox.table` 可改，迁移 SQL 须与运行时 `OutboxTable()` 一致，含 `database.table_prefix`）。
 默认 `outbox.enabled: false` 时，`infra.Outbox.Publish` 直发 MQ。
 
 ### 5. 消费者（独立进程）

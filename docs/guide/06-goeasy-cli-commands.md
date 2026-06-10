@@ -485,6 +485,14 @@ migrations/
 
 **注意：** `migrate goto` 只表示 SQL 迁移版本，**不能**按表名生成 proto/OpenAPI；表契约请用 `add db proto` / `add db openapi`（见 [20 库表契约](20-db-openapi-proto.md)）。
 
+**与 sqlx-cli 区分：** 不要用 Rust 的 `sqlx migrate add`。它生成在 `migrations/` 根目录且通常为单文件，与本 CLI 的 `migrations/<driver>/*.up.sql` + `*.down.sql` 不兼容。请使用 `goeasy-cli migrate create`。
+
+| 现象 | 处理 |
+|------|------|
+| `migrate status` 报路径含重复盘符 / `CreateFile` 语法错误 | 升级 goeasy-cli（修复二次路径拼接） |
+| 迁移在根目录未执行 | 移到 `migrations/postgres/` 或 `mysql/` |
+| Outbox 表名与配置不一致 | `mq.outbox.table` 须与迁移 SQL 中 `CREATE TABLE` 一致（含 `table_prefix`） |
+
 ## upgrade
 
 - `upgrade template`：模板随 CLI 版本发布，升级 CLI 即升级内嵌模板

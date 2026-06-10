@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS goeasy_outbox;
+DROP TABLE IF EXISTS _outbox;

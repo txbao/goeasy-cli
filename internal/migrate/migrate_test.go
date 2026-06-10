@@ -69,6 +69,44 @@ func TestResolveMigrationsDir(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected error for unsupported driver")
 	}
+
+	abs := filepath.Join(dir, "migrations", "postgres")
+	got, err = resolveMigrationsDir(dir, abs, "postgres")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if filepath.Clean(got) != filepath.Clean(abs) {
+		t.Fatalf("absolute path: got %q want %q", got, abs)
+	}
+}
+
+func TestResolveOptionsIdempotent(t *testing.T) {
+	dir := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(dir, "migrations", "postgres"), 0755); err != nil {
+		t.Fatal(err)
+	}
+	cfgPath := filepath.Join(dir, "cfg.yaml")
+	content := `database:
+  enabled: true
+  driver: postgres
+  dsn: postgres://localhost/db
+`
+	if err := os.WriteFile(cfgPath, []byte(content), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	opts := Options{ProjectDir: dir, ConfigPath: cfgPath, MigrationsDir: "migrations"}
+	first, _, err := ResolveOptions(opts)
+	if err != nil {
+		t.Fatal(err)
+	}
+	second, _, err := ResolveOptions(first)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if filepath.Clean(first.MigrationsDir) != filepath.Clean(second.MigrationsDir) {
+		t.Fatalf("idempotent resolve: first=%q second=%q", first.MigrationsDir, second.MigrationsDir)
+	}
 }
 
 func TestLoadDatabaseConfigDefaults(t *testing.T) {

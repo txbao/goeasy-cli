@@ -11,7 +11,9 @@
 | `require_permission.go` | Casbin RBAC |
 | `open_platform_auth.go` | 开放平台 RSA2 验签 |
 
-详见 `goeasy-cli/docs/guide/16-runtime-capabilities.md`。
+详见 `goeasy-cli/docs/guide/16-runtime-capabilities.md`（鉴权与 RBAC）。
+JWT / CORS 配置见 `goeasy-cli/docs/guide/19-project-config-p0-p1.md`。
+引擎级中间件见 `goeasy-cli/docs/runtime/http-middleware.md`。
 
 本目录提供**业务路由组**鉴权工厂：
 
@@ -40,4 +42,3 @@ h5 := engine.Group("/api/v1/h5")
 勿在 `internal/interface/http/<module>/router.go` 使用 `infra`（该文件只有 `RegisterRoutes(r, h)`）。
 
 Casbin 策略与菜单权限在业务层实现，不放在 goeasy 框架内。
-··

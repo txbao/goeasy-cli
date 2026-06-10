@@ -13,10 +13,10 @@ tidy:
 	go mod tidy
 
 migrate-up:
-	goeasy migrate up --dir . -f $(CONFIG) --migrations $(MIGRATIONS)
+	goeasy-cli migrate up --dir . -f $(CONFIG) --migrations $(MIGRATIONS)
 
 migrate-down:
-	goeasy migrate down --dir . -f $(CONFIG) --migrations $(MIGRATIONS)
+	goeasy-cli migrate down --dir . -f $(CONFIG) --migrations $(MIGRATIONS)
 
 migrate-status:
-	goeasy migrate status --dir . -f $(CONFIG) --migrations $(MIGRATIONS)
+	goeasy-cli migrate status --dir . -f $(CONFIG) --migrations $(MIGRATIONS)

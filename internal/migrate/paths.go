@@ -29,6 +29,9 @@ func ResolveOptions(opts Options) (Options, databaseYAML, error) {
 
 func resolveMigrationsDir(projectDir, migrationsFlag, driver string) (string, error) {
 	flag := strings.TrimSpace(migrationsFlag)
+	if filepath.IsAbs(flag) {
+		return filepath.Clean(flag), nil
+	}
 	norm := filepath.ToSlash(filepath.Clean(flag))
 	if flag != "" && norm != "migrations" && norm != "." {
 		abs, err := filepath.Abs(filepath.Join(projectDir, flag))

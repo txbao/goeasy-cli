@@ -1,5 +1,5 @@
 -- Outbox 事务发件箱（mq.outbox.enabled=true 时需执行）
-CREATE TABLE IF NOT EXISTS goeasy_outbox (
+CREATE TABLE IF NOT EXISTS _outbox (
     id          BIGSERIAL PRIMARY KEY,
     event_id    VARCHAR(64) NOT NULL UNIQUE,
     topic       VARCHAR(128) NOT NULL,
@@ -9,4 +9,4 @@ CREATE TABLE IF NOT EXISTS goeasy_outbox (
     created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     sent_at     TIMESTAMPTZ
 );
-CREATE INDEX IF NOT EXISTS idx_goeasy_outbox_status ON goeasy_outbox (status, id);
+CREATE INDEX IF NOT EXISTS idx__outbox_status ON _outbox (status, id);

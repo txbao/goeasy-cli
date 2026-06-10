@@ -74,7 +74,7 @@ func Status(opts Options) error {
 	}
 	fmt.Fprintf(os.Stderr, "info: migrations dir %s\n", resolved.MigrationsDir)
 
-	m, err := openMigrate(resolved)
+	m, err := openMigrate(opts)
 	if err != nil {
 		return err
 	}
