@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	zerr "{{ .GoEasyModule }}/errors"
 	zresp "{{ .GoEasyModule }}/response"
 	"{{ .GoEasyModule }}/validator"
 
@@ -22,16 +23,16 @@ func NewHandler(app appmqdemo.MessageDispatch) *Handler {
 func (h *Handler) Publish(c *gin.Context) {
 	var req PublishRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		zresp.Fail(c, http.StatusBadRequest, err.Error())
+		zresp.FailBiz(c, http.StatusBadRequest, int(zerr.BizCodeParamInvalid), err.Error())
 		return
 	}
 	if err := validator.Validate(req); err != nil {
-		zresp.Fail(c, http.StatusBadRequest, err.Error())
+		zresp.FailBiz(c, http.StatusBadRequest, int(zerr.BizCodeParamFormat), err.Error())
 		return
 	}
 	result, err := h.app.Dispatch(c.Request.Context(), req)
 	if err != nil {
-		zresp.Fail(c, http.StatusInternalServerError, err.Error())
+		zresp.FailInternal(c, err)
 		return
 	}
 	zresp.Success(c, PublishResponse(result))

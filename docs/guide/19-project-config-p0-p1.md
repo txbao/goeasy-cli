@@ -1,6 +1,6 @@
 # 19 项目配置清单（P0 / P1）
 
-面向 `goeasy new` / `add db crud` 生成的业务项目（如 demo3）。运行时能力见 [实体缓存](../runtime/entity-cache.md)、[HTTP 中间件](../runtime/http-middleware.md)。
+面向 `goeasy new` / `add db crud` 生成的业务项目（如 demo3）。运行时能力见 [实体缓存](../runtime/entity-cache.md)、[HTTP 中间件](../runtime/http-middleware.md)、[HTTP 响应与错误日志](../runtime/http-response.md)。
 
 ## 1. 最小可运行（数据库 + HTTP）
 
@@ -161,7 +161,24 @@ goeasy-cli add db proto --table sys_roles --force
 
 详见 [20 库表契约](20-db-openapi-proto.md)。
 
-## 9. P3：gRPC + 服务发现（optional）
+## 9. HTTP 错误响应与 500 日志（可选）
+
+默认复用 `observability.logger` + `env`，无需改配置即可启用 `FailBiz` / `FailInternal` 与 500 结构化日志。
+
+```yaml
+observability:
+  logger:
+    level: info
+    format: json
+    output: stdout
+  http:                          # 可选
+    log_server_errors: true
+    expose_error_detail: false   # prod 联调时可 true
+```
+
+详见 [HTTP 响应与错误日志](../runtime/http-response.md)。
+
+## 10. P3：gRPC + 服务发现（optional）
 
 ```yaml
 grpc:

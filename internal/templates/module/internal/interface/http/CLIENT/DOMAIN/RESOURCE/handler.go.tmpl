@@ -7,6 +7,7 @@ import (
 
 	app "{{ .ModuleName }}/internal/app/{{ .Domain }}/{{ .Resource }}"
 	"{{ .ModuleName }}/internal/app/{{ .Domain }}/{{ .Resource }}/command"
+	zerr "{{ .GoEasyModule }}/errors"
 	zresp "{{ .GoEasyModule }}/response"
 	zvalid "{{ .GoEasyModule }}/validator"
 )
@@ -23,7 +24,7 @@ func (h *Handler) Get(c *gin.Context) {
 	id := c.Param("id")
 	agg, err := h.app.Queries().Get(c.Request.Context(), id)
 	if err != nil {
-		zresp.Fail(c, http.StatusInternalServerError, err.Error())
+		zresp.FailInternal(c, err)
 		return
 	}
 	zresp.Success(c, ToResponse(agg))
@@ -33,16 +34,16 @@ func (h *Handler) Get(c *gin.Context) {
 func (h *Handler) Create(c *gin.Context) {
 	var cmd command.CreateCommand
 	if err := c.ShouldBindJSON(&cmd); err != nil {
-		zresp.Fail(c, http.StatusBadRequest, err.Error())
+		zresp.FailBiz(c, http.StatusBadRequest, int(zerr.BizCodeParamInvalid), err.Error())
 		return
 	}
 	if err := zvalid.Validate(&cmd); err != nil {
-		zresp.Fail(c, http.StatusBadRequest, zvalid.Format(err))
+		zresp.FailBiz(c, http.StatusBadRequest, int(zerr.BizCodeParamFormat), zvalid.Format(err))
 		return
 	}
 	id, err := h.app.Commands().Create(c.Request.Context(), cmd)
 	if err != nil {
-		zresp.Fail(c, http.StatusInternalServerError, err.Error())
+		zresp.FailInternal(c, err)
 		return
 	}
 	zresp.Success(c, gin.H{"id": id})

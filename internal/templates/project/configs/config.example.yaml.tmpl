@@ -103,6 +103,8 @@ scheduler:
 
 # 可观测性（goeasy/trace、metrics、audit、health）
 observability:
+  http:
+    log_server_errors: true
   logger:
     level: info          # dev 可用 debug；生产建议 info
     format: json         # json | text

@@ -136,6 +136,9 @@ observability:
     level: debug         # dev 默认 debug；生产建议 info
     format: json         # json | text
     output: stdout
+  http:                  # 可选：500 错误日志与 FailInternal 脱敏
+    log_server_errors: true
+    # expose_error_detail: false  # 省略则 dev 暴露 err 详情、prod 脱敏
   sql:
     enabled: false
     slow_ms: 200

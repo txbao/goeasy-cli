@@ -71,6 +71,7 @@ func genHandler(projectModule, client string, ct schema.ClassifiedTable, pascal,
 	if fullCRUD && style.IsLightCQRS() {
 		b.WriteString(fmt.Sprintf("\t\"%s/command\"\n", meta.AppImportPath(projectModule)))
 	}
+	b.WriteString(fmt.Sprintf("\tzerr \"%s/errors\"\n", goeasy))
 	b.WriteString(fmt.Sprintf("\tzresp \"%s/response\"\n", goeasy))
 	if fullCRUD {
 		b.WriteString(fmt.Sprintf("\tzvalid \"%s/validator\"\n", goeasy))
@@ -84,7 +85,7 @@ func genHandler(projectModule, client string, ct schema.ClassifiedTable, pascal,
 	} else {
 		b.WriteString("\tagg, err := h.app.Queries().Get(c.Request.Context(), id)\n")
 	}
-	b.WriteString("\tif err != nil {\n\t\tzresp.Fail(c, http.StatusInternalServerError, err.Error())\n\t\treturn\n\t}\n")
+	b.WriteString("\tif err != nil {\n\t\tzresp.FailInternal(c, err)\n\t\treturn\n\t}\n")
 	b.WriteString("\tzresp.Success(c, ToResponse(agg))\n}\n\n")
 	if fullCRUD {
 		b.WriteString("func (h *Handler) Create(c *gin.Context) {\n")
@@ -94,15 +95,15 @@ func genHandler(projectModule, client string, ct schema.ClassifiedTable, pascal,
 			b.WriteString("\tvar cmd command.CreateCommand\n")
 		}
 		b.WriteString("\tif err := c.ShouldBindJSON(&cmd); err != nil {\n")
-		b.WriteString("\t\tzresp.Fail(c, http.StatusBadRequest, err.Error())\n\t\treturn\n\t}\n")
+		b.WriteString("\t\tzresp.FailBiz(c, http.StatusBadRequest, int(zerr.BizCodeParamInvalid), err.Error())\n\t\treturn\n\t}\n")
 		b.WriteString("\tif err := zvalid.Validate(&cmd); err != nil {\n")
-		b.WriteString("\t\tzresp.Fail(c, http.StatusBadRequest, zvalid.Format(err))\n\t\treturn\n\t}\n")
+		b.WriteString("\t\tzresp.FailBiz(c, http.StatusBadRequest, int(zerr.BizCodeParamFormat), zvalid.Format(err))\n\t\treturn\n\t}\n")
 		if style.IsService() {
 			b.WriteString("\tid, err := h.app.Create(c.Request.Context(), cmd)\n")
 		} else {
 			b.WriteString("\tid, err := h.app.Commands().Create(c.Request.Context(), cmd)\n")
 		}
-		b.WriteString("\tif err != nil {\n\t\tzresp.Fail(c, http.StatusInternalServerError, err.Error())\n\t\treturn\n\t}\n")
+		b.WriteString("\tif err != nil {\n\t\tzresp.FailInternal(c, err)\n\t\treturn\n\t}\n")
 		b.WriteString("\tzresp.Success(c, gin.H{\"id\": id})\n}\n")
 	}
 	return b.String()
@@ -117,6 +118,7 @@ func genHandlerCrud(projectModule, client string, ct schema.ClassifiedTable, pas
 	if fullCRUD && style.IsService() {
 		b.WriteString(fmt.Sprintf("\tapp \"%s\"\n", meta.AppImportPath(projectModule)))
 	}
+	b.WriteString(fmt.Sprintf("\tzerr \"%s/errors\"\n", goeasy))
 	b.WriteString(fmt.Sprintf("\tzpage \"%s/pagination\"\n", goeasy))
 	b.WriteString(fmt.Sprintf("\tzresp \"%s/response\"\n", goeasy))
 	b.WriteString(fmt.Sprintf("\tzvalid \"%s/validator\"\n)\n\n", goeasy))
@@ -127,9 +129,9 @@ func genHandlerCrud(projectModule, client string, ct schema.ClassifiedTable, pas
 	b.WriteString("\t}\n")
 	b.WriteString("\treq = zpage.Normalize(req)\n")
 	b.WriteString("\tif err := zvalid.Validate(&req); err != nil {\n")
-	b.WriteString("\t\tzresp.Fail(c, http.StatusBadRequest, zvalid.Format(err))\n\t\treturn\n\t}\n")
+	b.WriteString("\t\tzresp.FailBiz(c, http.StatusBadRequest, int(zerr.BizCodeParamFormat), zvalid.Format(err))\n\t\treturn\n\t}\n")
 	b.WriteString("\tresult, err := h.app.List(c.Request.Context(), req.Page, req.PageSize)\n")
-	b.WriteString("\tif err != nil {\n\t\tzresp.Fail(c, http.StatusInternalServerError, err.Error())\n\t\treturn\n\t}\n")
+	b.WriteString("\tif err != nil {\n\t\tzresp.FailInternal(c, err)\n\t\treturn\n\t}\n")
 	b.WriteString("\tlist := make([]ResponseDTO, 0, len(result.List))\n")
 	b.WriteString("\tfor i := range result.List {\n")
 	b.WriteString("\t\tlist = append(list, ToResponseDTO(&result.List[i]))\n")
@@ -147,16 +149,16 @@ func genHandlerCrud(projectModule, client string, ct schema.ClassifiedTable, pas
 			b.WriteString("\tvar cmd command.UpdateCommand\n")
 		}
 		b.WriteString("\tif err := c.ShouldBindJSON(&cmd); err != nil {\n")
-		b.WriteString("\t\tzresp.Fail(c, http.StatusBadRequest, err.Error())\n\t\treturn\n\t}\n")
+		b.WriteString("\t\tzresp.FailBiz(c, http.StatusBadRequest, int(zerr.BizCodeParamInvalid), err.Error())\n\t\treturn\n\t}\n")
 		b.WriteString("\tif err := zvalid.Validate(&cmd); err != nil {\n")
-		b.WriteString("\t\tzresp.Fail(c, http.StatusBadRequest, zvalid.Format(err))\n\t\treturn\n\t}\n")
+		b.WriteString("\t\tzresp.FailBiz(c, http.StatusBadRequest, int(zerr.BizCodeParamFormat), zvalid.Format(err))\n\t\treturn\n\t}\n")
 		b.WriteString("\tcmd.ID = id\n")
 		if style.IsService() {
 			b.WriteString("\tif err := h.app.Update(c.Request.Context(), cmd); err != nil {\n")
 		} else {
 			b.WriteString("\tif err := h.app.Commands().Update(c.Request.Context(), cmd); err != nil {\n")
 		}
-		b.WriteString("\t\tzresp.Fail(c, http.StatusInternalServerError, err.Error())\n\t\treturn\n\t}\n")
+		b.WriteString("\t\tzresp.FailInternal(c, err)\n\t\treturn\n\t}\n")
 		b.WriteString("\tzresp.Success(c, gin.H{\"updated\": id})\n}\n\n")
 		b.WriteString("func (h *Handler) Delete(c *gin.Context) {\n")
 		b.WriteString("\tid := c.Param(\"id\")\n")
@@ -165,7 +167,7 @@ func genHandlerCrud(projectModule, client string, ct schema.ClassifiedTable, pas
 		} else {
 			b.WriteString("\tif err := h.app.Commands().Delete(c.Request.Context(), id); err != nil {\n")
 		}
-		b.WriteString("\t\tzresp.Fail(c, http.StatusInternalServerError, err.Error())\n\t\treturn\n\t}\n")
+		b.WriteString("\t\tzresp.FailInternal(c, err)\n\t\treturn\n\t}\n")
 		b.WriteString("\tzresp.Success(c, gin.H{\"deleted\": id})\n}\n")
 	}
 	return b.String()

@@ -348,6 +348,7 @@ func genRPCDemoHTTPHandler(projectModule string, style AppStyle, meta RPCDemoPro
 	if style.IsLightCQRS() {
 		b.WriteString(fmt.Sprintf("\t\"%s/internal/app/rpcdemo/command\"\n", projectModule))
 	}
+	b.WriteString("\tzerr \"github.com/txbao/goeasy/errors\"\n")
 	b.WriteString("\tzresp \"github.com/txbao/goeasy/response\"\n")
 	b.WriteString("\tzvalid \"github.com/txbao/goeasy/validator\"\n")
 	b.WriteString(")\n\n")
@@ -359,7 +360,7 @@ func genRPCDemoHTTPHandler(projectModule string, style AppStyle, meta RPCDemoPro
 	} else {
 		b.WriteString("\tview, err := h.app.Queries().Get(c.Request.Context(), id)\n")
 	}
-	b.WriteString("\tif err != nil {\n\t\tzresp.Fail(c, http.StatusInternalServerError, err.Error())\n\t\treturn\n\t}\n")
+	b.WriteString("\tif err != nil {\n\t\tzresp.FailInternal(c, err)\n\t\treturn\n\t}\n")
 	b.WriteString("\tzresp.Success(c, ToResponse(view))\n}\n\n")
 	b.WriteString("func (h *Handler) Create(c *gin.Context) {\n")
 	if style.IsService() {
@@ -367,14 +368,14 @@ func genRPCDemoHTTPHandler(projectModule string, style AppStyle, meta RPCDemoPro
 	} else {
 		b.WriteString("\tvar cmd command.CreateCommand\n")
 	}
-	b.WriteString("\tif err := c.ShouldBindJSON(&cmd); err != nil {\n\t\tzresp.Fail(c, http.StatusBadRequest, err.Error())\n\t\treturn\n\t}\n")
-	b.WriteString("\tif err := zvalid.Validate(&cmd); err != nil {\n\t\tzresp.Fail(c, http.StatusBadRequest, zvalid.Format(err))\n\t\treturn\n\t}\n")
+	b.WriteString("\tif err := c.ShouldBindJSON(&cmd); err != nil {\n\t\tzresp.FailBiz(c, http.StatusBadRequest, int(zerr.BizCodeParamInvalid), err.Error())\n\t\treturn\n\t}\n")
+	b.WriteString("\tif err := zvalid.Validate(&cmd); err != nil {\n\t\tzresp.FailBiz(c, http.StatusBadRequest, int(zerr.BizCodeParamFormat), zvalid.Format(err))\n\t\treturn\n\t}\n")
 	if style.IsService() {
 		b.WriteString("\tview, err := h.app.Create(c.Request.Context(), cmd)\n")
 	} else {
 		b.WriteString("\tview, err := h.app.Commands().Create(c.Request.Context(), cmd)\n")
 	}
-	b.WriteString("\tif err != nil {\n\t\tzresp.Fail(c, http.StatusInternalServerError, err.Error())\n\t\treturn\n\t}\n")
+	b.WriteString("\tif err != nil {\n\t\tzresp.FailInternal(c, err)\n\t\treturn\n\t}\n")
 	b.WriteString("\tzresp.Success(c, ToResponse(view))\n}\n")
 	return b.String()
 }

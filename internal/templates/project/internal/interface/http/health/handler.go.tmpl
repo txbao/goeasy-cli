@@ -21,7 +21,7 @@ func NewHandler(app *apphealth.Application) *Handler {
 func (h *Handler) Check(c *gin.Context) {
 	status, err := h.app.Queries().Check(c.Request.Context(), "{{ .ProjectName }}")
 	if err != nil {
-		zresp.Fail(c, http.StatusInternalServerError, err.Error())
+		zresp.FailInternal(c, err)
 		return
 	}
 	zresp.Success(c, CheckResponse{

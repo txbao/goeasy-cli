@@ -1,6 +1,6 @@
 # HTTP 中间件
 
-> 本文描述 **goeasy 运行时库**能力；业务项目接入见 [guide/](../guide/) 对应章节。
+> 本文描述 **goeasy 运行时库**能力；业务项目接入见 [guide/](../guide/) 对应章节。统一错误响应见 [HTTP 响应与错误日志](http-response.md)。
 
 ## 引擎级（goeasy/httpx）
 
