@@ -20,7 +20,7 @@ func GenerateFromContracts(opts GenContractOptions) error {
 	if !opts.SkipHTTP {
 		o := opts.GenHTTPOptions
 		if o.OpenAPIFile == "" && o.OpenAPIDir == "" {
-			o.OpenAPIDir = filepath.Join(opts.ProjectDir, APIContractsOpenAPI)
+			o.OpenAPIDir = filepath.Join(opts.ProjectDir, APIOpenAPIDir)
 		}
 		if err := GenerateHTTPFromOpenAPI(o); err != nil {
 			if !isContractDirEmptyErr(err) {

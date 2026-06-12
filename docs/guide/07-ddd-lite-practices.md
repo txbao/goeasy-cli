@@ -134,8 +134,8 @@ internal/bootstrap/
 
 **契约驱动（先 API/Proto）：**
 
-1. 编写 `api/contracts/openapi/<name>.openapi.yaml`（及可选 `api/proto/<name>.proto`）
-2. `goeasy-cli gen http --from api/contracts/openapi/<name>.openapi.yaml` → `goeasy-cli gen contract`
+1. 编写 `api/openapi/<client>/<domain>/<name>.openapi.yaml`（及可选 `api/proto/<name>.proto`）
+2. `goeasy-cli gen http --from api/openapi/admin/<domain>/<name>.openapi.yaml` → `goeasy-cli gen contract`
 3. 手改 `domain` / `repository_pg`；落库后 `migrate up`
 
 详见 [15 契约驱动生成](15-contract-first.md)。

@@ -25,7 +25,7 @@ CLI 二进制名为 **`goeasy`**（`go install` 后）。本地编译产物为 *
 | `goeasy-cli add db module` | 从表生成 domain + 持久化（无 CRUD HTTP 覆盖） |
 | `goeasy-cli add db crud` | 从表自省生成模块 + CRUD + `repository_pg` |
 | `goeasy-cli add db proto` | 从表结构生成 `api/proto/*.proto`（含 List RPC） |
-| `goeasy-cli add db openapi` | 从表结构生成 `api/generated/openapi/*.openapi.yaml` |
+| `goeasy-cli add db openapi` | 从表结构生成 `api/openapi/<client>/<domain>/*.openapi.yaml` |
 | `goeasy-cli add db all` | 对匹配表批量 `crud`（可加 `--with-proto` / `--with-openapi`） |
 | `goeasy-cli gen proto` | 对 `api/proto/*.proto` 运行 protoc 生成 `*.pb.go`（需本机 protoc 与插件） |
 | （P3）gRPC | 见 [11 gRPC 项目集成](11-grpc-internal.md)；`add db proto` + `gen proto` + 实现 `server.go` |
@@ -242,7 +242,7 @@ goeasy-cli add rpc bind sys_apis  --consumer etcddemo
 | 子命令 | 说明 |
 |--------|------|
 | `gen http --from <openapi>` | 从 OpenAPI 3 生成 HTTP 层 + app/domain 桩（契约驱动）；**默认幂等**（已存在则 skip） |
-| `gen http --dir-api api/contracts/openapi` | 批量 OpenAPI（SSOT） |
+| `gen http --dir-api api/openapi` | 批量 OpenAPI（默认目录，递归扫描） |
 | `gen http --merge-http` | 库表先行后增量 HTTP：不碰 app/domain，不覆盖已有 HTTP 文件；OpenAPI 中非 CRUD 路径生成 `handler_openapi.go` / `router_openapi.go` |
 | `gen http --allow-overwrite` | 与 `--force` 联用，允许覆盖 `add db crud` 产物（默认 `--force` 遇 `repository_pg` 会拒绝） |
 
@@ -250,7 +250,7 @@ goeasy-cli add rpc bind sys_apis  --consumer etcddemo
 
 **库表先行：** `add db crud` 后用 `add db openapi` 维护契约；避免 `gen http --force`。补自定义路由用 `--merge-http`。
 | `gen grpc --from <proto>` | 从 `.proto` 生成 gRPC 桩（需已有 app 层） |
-| `gen contract` | 批量：`api/contracts/openapi` + `api/proto`（默认 `--with-proto`） |
+| `gen contract` | 批量：`api/openapi` + `api/proto`（默认 `--with-proto`） |
 | `gen proto` | 对 `api/proto` 下 `.proto` 执行 protoc（`--file` 可指定单个） |
 | `gen proto --from-url <url>` | 下载远程 `.proto` 到 `api/proto/imported/` 再 protoc |
 | `gen proto --dir <root>` | 指定项目根，默认 `.` |

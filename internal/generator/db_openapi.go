@@ -3,7 +3,6 @@ package generator
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/txbao/goeasy-cli/internal/schema"
@@ -27,7 +26,6 @@ func GenerateDBOpenAPI(opts DBOptions) error {
 	if err != nil {
 		return err
 	}
-	httpClient := clients[0].Name
 	for _, physical := range tables {
 		module := resolveModuleName(opts, physical, prefix)
 		meta, err := loadTableMeta(driver, dsn, opts.Schema, physical)
@@ -38,17 +36,19 @@ func GenerateDBOpenAPI(opts DBOptions) error {
 		pascal := utils.ToPascal(module)
 		snake := utils.ToSnake(module)
 		layout := moduleMetaFromDB(opts, module)
-		content := genOpenAPIFile(projectModule, ct, pascal, snake, httpClient, layout)
-		rel := filepath.Join(APIGeneratedOpenAPI, snake+".openapi.yaml")
-		skipped, err := writeProjectFileOrSkip(opts.ProjectDir, rel, content, opts.Force)
-		if err != nil {
-			return err
+		for _, cl := range clients {
+			content := genOpenAPIFile(projectModule, ct, pascal, snake, cl.Name, layout)
+			rel := layout.OpenAPIRel(cl.Name)
+			skipped, err := writeProjectFileOrSkip(opts.ProjectDir, rel, content, opts.Force)
+			if err != nil {
+				return err
+			}
+			if skipped {
+				fmt.Fprintf(os.Stderr, "info: skip existing %s (use --force)\n", rel)
+				continue
+			}
+			fmt.Printf("  created %s\n", rel)
 		}
-		if skipped {
-			fmt.Fprintf(os.Stderr, "info: skip existing %s (use --force)\n", rel)
-			continue
-		}
-		fmt.Printf("  created %s\n", rel)
 	}
 	return nil
 }

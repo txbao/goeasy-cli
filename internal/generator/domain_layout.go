@@ -73,6 +73,12 @@ func (m ModuleMeta) HTTPRel(client, file string) string {
 	return filepath.Join(m.HTTPDir(client), file)
 }
 
+// OpenAPIRel api/openapi/{client}/{domain}/{module_id}.openapi.yaml
+func (m ModuleMeta) OpenAPIRel(client string) string {
+	normalizeMeta(&m)
+	return filepath.Join(APIOpenAPIDir, client, m.Domain, m.ModuleSnake+".openapi.yaml")
+}
+
 func (m ModuleMeta) HTTPImportSuffix(client string) string {
 	return filepath.ToSlash(m.HTTPDir(client))
 }
@@ -306,9 +312,8 @@ func httpTemplateRepl(client string, meta ModuleMeta) (repl map[string]string, i
 
 // API 契约目录约定。
 const (
-	APIContractsOpenAPI = "api/contracts/openapi"
-	APIGeneratedOpenAPI = "api/generated/openapi"
-	APIProtoDir         = "api/proto"
-	APIProtoGenDir      = "api/proto/gen"
-	APIExamplesDir      = "api/examples"
+	APIOpenAPIDir  = "api/openapi"
+	APIProtoDir    = "api/proto"
+	APIProtoGenDir = "api/proto/gen"
+	APIExamplesDir = "api/examples"
 )

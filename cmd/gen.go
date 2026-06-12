@@ -86,7 +86,7 @@ var genGRPCCmd = &cobra.Command{
 
 var genContractCmd = &cobra.Command{
 	Use:   "contract",
-	Short: "Batch generate from api/contracts/openapi + api/proto (contract-first workflow)",
+	Short: "Batch generate from api/openapi + api/proto (contract-first workflow)",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		abs, err := filepath.Abs(genProjectDir)
 		if err != nil {
@@ -121,8 +121,8 @@ func init() {
 	genCmd.AddCommand(genProtoCmd)
 
 	genHTTPCmd.Flags().BoolVar(&addForce, "force", false, "Overwrite existing files")
-	genHTTPCmd.Flags().StringVar(&genOpenAPIFile, "from", "", "OpenAPI file (e.g. api/contracts/openapi/sys_roles.openapi.yaml)")
-	genHTTPCmd.Flags().StringVar(&genOpenAPIDir, "dir-api", "", "OpenAPI directory (default api/contracts/openapi)")
+	genHTTPCmd.Flags().StringVar(&genOpenAPIFile, "from", "", "OpenAPI file (e.g. api/openapi/admin/system/sys_roles.openapi.yaml)")
+	genHTTPCmd.Flags().StringVar(&genOpenAPIDir, "dir-api", "", "OpenAPI directory (default api/openapi)")
 	genHTTPCmd.Flags().StringSliceVar(&addHTTPClients, "client", []string{}, "HTTP clients to generate (default: from OpenAPI paths)")
 	genHTTPCmd.Flags().StringSliceVar(&addHTTPPublicClients, "public", nil, "Client(s) without auth middleware (e.g. h5)")
 	genHTTPCmd.Flags().StringVar(&addHTTPDomain, "domain", "", "Bounded context override (alias: --group)")
@@ -141,7 +141,7 @@ func init() {
 	genCmd.AddCommand(genGRPCCmd)
 
 	genContractCmd.Flags().BoolVar(&addForce, "force", false, "Overwrite existing files")
-	genContractCmd.Flags().StringVar(&genOpenAPIDir, "dir-api", "", "OpenAPI directory (default api/contracts/openapi)")
+	genContractCmd.Flags().StringVar(&genOpenAPIDir, "dir-api", "", "OpenAPI directory (default api/openapi)")
 	genContractCmd.Flags().BoolVar(&genSkipHTTP, "skip-http", false, "Skip OpenAPI → HTTP generation")
 	genContractCmd.Flags().BoolVar(&genSkipGRPC, "skip-grpc", false, "Skip proto → gRPC stub generation")
 	genContractCmd.Flags().BoolVar(&genWithProtoPB, "with-proto", true, "Run protoc to generate *.pb.go before gRPC stubs")

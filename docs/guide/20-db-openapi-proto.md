@@ -1,12 +1,12 @@
 # 20 库表契约：OpenAPI 与 Proto（P2）
 
-从数据库自省生成 `api/generated/openapi/*.openapi.yaml` 与 `api/proto/*.proto`，列/表**注释**来自 PG `col_description` / MySQL `COLUMN_COMMENT`。审阅后可复制到 `api/contracts/openapi/` 作为 SSOT。
+从数据库自省生成 `api/openapi/<client>/<domain>/*.openapi.yaml` 与 `api/proto/*.proto`，列/表**注释**来自 PG `col_description` / MySQL `COLUMN_COMMENT`。
 
 ## 命令
 
 | 命令 | 输出 |
 |------|------|
-| `goeasy add db openapi --table <m>` | `api/generated/openapi/<module>.openapi.yaml` |
+| `goeasy add db openapi --table <m>` | `api/openapi/<client>/<domain>/<module>.openapi.yaml` |
 | `goeasy add db proto --table <m>` | `api/proto/<module>.proto` |
 | `goeasy add db crud --table <m> --with-openapi` | CRUD 代码 + OpenAPI |
 | `goeasy add db crud --table <m> --with-proto` | CRUD 代码 + Proto |

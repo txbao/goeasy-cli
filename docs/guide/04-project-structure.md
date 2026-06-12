@@ -179,17 +179,13 @@ health 为脚手架内置模块，仍使用单段路径 `domain/health`（非 BC
 
 |------|------|
 
-| `api/contracts/openapi/` | OpenAPI SSOT；`gen http` 默认读取 |
-
-| `api/generated/openapi/` | `add db openapi` 自省草稿 |
+| `api/openapi/<client>/<domain>/` | OpenAPI 契约；`add db openapi` 输出、`gen http` 默认读取 |
 
 | `api/examples/<client>/<domain>/<module_id>/` | `add db crud` 生成的 `crud.http`（REST Client 联调） |
 
 | `api/proto/` | gRPC 契约源文件 `*.proto` |
 
 | `api/proto/gen/<module>/` | `gen proto` 生成的 `*.pb.go`（需提交） |
-
-| `api/bundle/` | 可选：合并导出（Apifox 等） |
 
 
 

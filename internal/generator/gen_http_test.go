@@ -65,7 +65,7 @@ func TestGenerateHTTPFromOpenAPIIdempotent(t *testing.T) {
 `), 0644); err != nil {
 		t.Fatal(err)
 	}
-	apiDir := filepath.Join(dir, "api", "contracts", "openapi")
+	apiDir := filepath.Join(dir, "api", "openapi", "admin", "iam")
 	if err := os.MkdirAll(apiDir, 0755); err != nil {
 		t.Fatal(err)
 	}

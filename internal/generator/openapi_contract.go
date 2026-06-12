@@ -58,7 +58,7 @@ func resolveOpenAPIFiles(projectDir, single, dir string) ([]string, error) {
 	}
 	root := dir
 	if root == "" {
-		root = filepath.Join(projectDir, APIContractsOpenAPI)
+		root = filepath.Join(projectDir, APIOpenAPIDir)
 	} else if !filepath.IsAbs(root) {
 		root = filepath.Join(projectDir, root)
 	}

@@ -6,11 +6,11 @@
 
 ```text
 ① SSOT 契约（手写或 Apifox 导出）
-   api/contracts/openapi/<module>.openapi.yaml
+   api/openapi/<client>/<domain>/<module_id>.openapi.yaml
    api/proto/<module>.proto
 
 ② 生成代码桩
-   goeasy-cli gen http --from api/contracts/openapi/sys_roles.openapi.yaml
+   goeasy-cli gen http --from api/openapi/admin/system/sys_roles.openapi.yaml
    goeasy-cli gen proto
    goeasy-cli gen grpc --from api/proto/sys_roles.proto
 
@@ -20,14 +20,14 @@
 ④ migrate up → go run ./cmd/service
 ```
 
-库表自省草稿在 `api/generated/openapi/`，审阅后可复制到 `api/contracts/openapi/`。
+库表自省同样写入 `api/openapi/<client>/<domain>/`（`add db openapi` / `--with-openapi`）。
 
 ## 命令
 
 | 命令 | 说明 |
 |------|------|
 | `gen http --from <openapi>` | 解析 OpenAPI 3 → HTTP + app/domain 桩 |
-| `gen http --dir-api api/contracts/openapi` | 批量（默认目录） |
+| `gen http --dir-api api/openapi` | 批量（默认目录，递归扫描） |
 | `gen grpc --from <proto>` | gRPC 桩（**需已有 app 层**） |
 | `gen contract` | 批量 HTTP + gRPC；默认 `--with-proto` |
 
@@ -46,17 +46,17 @@
 ## OpenAPI 约定
 
 - 路径：`/api/v1/{client}/{domain}/{resource}`（如 `/api/v1/admin/system/roles`）
-- 文件名推导模块 ID：`sys_roles.openapi.yaml` → `sys_roles`
+- 目录：`api/openapi/{client}/{domain}/{module_id}.openapi.yaml`
 - 布局由 OpenAPI 路径 + `codegen.domains` 解析为 `domain/system/roles`
 
 ## 示例
 
 ```bat
 REM 契约先行（无 db crud 产物时）
-goeasy-cli gen http --from api/contracts/openapi/sys_roles.openapi.yaml --force
+goeasy-cli gen http --from api/openapi/admin/system/sys_roles.openapi.yaml --force
 
 REM 库表先行后补自定义路由
-goeasy-cli gen http --merge-http --from api/contracts/openapi/sys_roles.openapi.yaml
+goeasy-cli gen http --merge-http --from api/openapi/admin/system/sys_roles.openapi.yaml
 
 goeasy-cli gen contract --force
 go mod tidy
