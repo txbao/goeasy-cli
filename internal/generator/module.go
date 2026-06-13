@@ -22,6 +22,7 @@ type ModuleOptions struct {
 	Resource      string   // URL/包资源名，如 roles
 	ConfigPath    string   // 读取 codegen.domains，默认 configs/config.yaml
 	AppStyle      string   // CLI --app-style；空则读 config
+	WithAudit     bool     // add crud --audit：Application 注入 audit.Recorder 并生成埋点桩
 }
 
 func GenerateModule(opts ModuleOptions) error {
@@ -65,7 +66,7 @@ func GenerateModule(opts ModuleOptions) error {
 	if style.IsService() {
 		pascal := utils.ToPascal(opts.ModuleName)
 		appPath := filepath.Join(opts.ProjectDir, meta.appRel("application.go"))
-		appSrc := genModuleSkeletonServiceApplication(projectModule, meta, pascal)
+		appSrc := genModuleSkeletonServiceApplication(projectModule, meta, pascal, false)
 		if opts.Force {
 			if err := os.WriteFile(appPath, []byte(appSrc), 0644); err != nil {
 				return err

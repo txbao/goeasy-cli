@@ -178,6 +178,21 @@ observability:
 
 详见 [HTTP 响应与错误日志](../runtime/http-response.md)。
 
+## 9.1 操作日志与审计（optional）
+
+```yaml
+observability:
+  audit:
+    enabled: false          # JSON 运维审计（stdout）
+    async_enabled: false    # 业务 Recorder 异步写入
+    buffer_size: 256
+    mask_phone: true
+    mask_login_id: true
+    sensitive_keys: []
+```
+
+业务 DB 持久化：实现 `audit.Recorder` 后 `application.SetAuditRecorder(...)`。详见 [audit-recorder.md](../runtime/audit-recorder.md)。
+
 ## 10. P3：gRPC + 服务发现（optional）
 
 ```yaml

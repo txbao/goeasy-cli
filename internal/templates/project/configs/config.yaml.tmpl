@@ -154,6 +154,11 @@ observability:
     path: /metrics
   audit:
     enabled: false
+    async_enabled: false
+    buffer_size: 256
+    mask_phone: true
+    mask_login_id: true
+    sensitive_keys: []
   health:
     enabled: true
     path: /healthz

@@ -91,6 +91,7 @@ func buildDomainRegisterData(projectDir, domain string, moduleIDs []string, curr
 	clientUnion := map[string]ClientSurface{}
 	anyPG := false
 	needMiddleware := false
+	anyAudit := current.WithAudit
 
 	for _, moduleID := range moduleIDs {
 		modOpts := current
@@ -111,6 +112,10 @@ func buildDomainRegisterData(projectDir, domain string, moduleIDs []string, curr
 		withPG := repositoryPGExists(projectDir, meta)
 		if withPG {
 			anyPG = true
+		}
+		modAudit := resolveModuleAudit(current, meta)
+		if modAudit {
+			anyAudit = true
 		}
 		if clientsNeedHTTPMiddleware(clients) {
 			needMiddleware = true
@@ -144,6 +149,7 @@ func buildDomainRegisterData(projectDir, domain string, moduleIDs []string, curr
 		}
 		data["ClientSurfaces"] = surfaces
 		data["WithCRUD"] = modCRUD
+		data["WithAudit"] = modAudit
 
 		entries = append(entries, modEntry{data: data, clientSurfaces: clients})
 	}
@@ -179,6 +185,7 @@ func buildDomainRegisterData(projectDir, domain string, moduleIDs []string, curr
 		"SharedClients":      sharedMaps,
 		"AnyWithPG":          anyPG,
 		"NeedHTTPMiddleware": needMiddleware,
+		"WithAudit":          anyAudit,
 	}, nil
 }
 

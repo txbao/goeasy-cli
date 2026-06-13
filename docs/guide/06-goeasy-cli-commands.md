@@ -106,6 +106,7 @@ add aggregate     → 已隐藏/废弃，请改用 add module/crud
 cd mysvc
 goeasy-cli add crud sys_roles
 goeasy-cli add crud sys_roles --with-migration
+goeasy-cli add crud sys_roles --audit   # Application 注入 audit.Recorder + 操作日志埋点桩
 go mod tidy
 goeasy-cli migrate up
 REM 检查 internal/bootstrap/modules.go 已含 RegisterSysRoles（CLI 自动追加）

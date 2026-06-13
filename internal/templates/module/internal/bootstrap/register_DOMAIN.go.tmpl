@@ -4,6 +4,9 @@ import (
 	"github.com/gin-gonic/gin"
 
 	goeasyapp "{{ .GoEasyModule }}/app"
+{{- if .WithAudit }}
+	zhttpx "{{ .GoEasyModule }}/httpx"
+{{- end }}
 {{- if .AnyWithPG }}
 
 	"{{ .ProjectModule }}/internal/infrastructure/shared/dbx"
@@ -24,7 +27,13 @@ import (
 // Register{{ .DomainPascal }} 装配并注册 {{ .Domain }} 限界上下文路由。
 func Register{{ .DomainPascal }}(engine *gin.Engine, infra goeasyapp.HTTPInfra) error {
 {{- range .SharedClients }}
+{{- if $.WithAudit }}
 {{- if .UseAuth }}
+	api{{ .Pascal }} := engine.Group("/api/v1/{{ .Name }}", middleware.{{ .Middleware }}(infra), zhttpx.InjectOperatorContext())
+{{- else }}
+	api{{ .Pascal }} := engine.Group("/api/v1/{{ .Name }}")
+{{- end }}
+{{- else if .UseAuth }}
 	api{{ .Pascal }} := engine.Group("/api/v1/{{ .Name }}", middleware.{{ .Middleware }}(infra))
 {{- else }}
 	api{{ .Pascal }} := engine.Group("/api/v1/{{ .Name }}")
@@ -55,7 +64,11 @@ func register{{ $.DomainPascal }}{{ .ModulePascal }}({{- range $.SharedClients }
 	repo = {{ .ModuleAlias }}infra.NewRepository()
 {{- end }}
 	dom := {{ .ModuleAlias }}domain.NewDomainService()
+{{- if .WithAudit }}
+	application := {{ .ModuleAlias }}app.NewApplication(repo, dom, infra.AuditRecorder)
+{{- else }}
 	application := {{ .ModuleAlias }}app.NewApplication(repo, dom)
+{{- end }}
 {{- $mod := . }}
 {{- range .ClientSurfaces }}
 	h{{ .Pascal }} := {{ .ImportAlias }}.NewHandler(application)

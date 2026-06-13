@@ -49,9 +49,12 @@ func renderRegisterFile(opts ModuleOptions, withCRUD, force bool) error {
 	if b, err := os.ReadFile(targetPath); err == nil {
 		content := string(b)
 		if strings.Contains(content, moduleMarker) {
-			if withCRUD && !strings.Contains(content, "RegisterCRUDRoutes") {
-				force = true
-			}
+		if withCRUD && !strings.Contains(content, "RegisterCRUDRoutes") {
+			force = true
+		}
+		if opts.WithAudit && !strings.Contains(content, "AuditRecorder") {
+			force = true
+		}
 			if !force {
 				fmt.Fprintf(os.Stderr, "info: %s already registers %s, skipping\n", targetRel, meta.ModuleID)
 				return nil

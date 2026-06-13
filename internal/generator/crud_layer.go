@@ -21,13 +21,14 @@ func ensureModuleCRUDLayer(opts ModuleOptions) error {
 		return err
 	}
 	meta := resolveModuleMetaForModule(opts, opts.ConfigPath)
+	withAudit := resolveModuleAudit(opts, meta)
 	pascal := utils.ToPascal(opts.ModuleName)
 
 	var files map[string]string
 	if style.IsService() {
-		files = genModuleServiceCRUDLayer(projectModule, meta, pascal)
+		files = genModuleServiceCRUDLayer(projectModule, meta, pascal, withAudit)
 	} else {
-		files = genModuleLightCQRSCRUDLayer(projectModule, meta, pascal)
+		files = genModuleLightCQRSCRUDLayer(projectModule, meta, pascal, withAudit)
 	}
 	for rel, content := range files {
 		target := filepath.Join(opts.ProjectDir, rel)

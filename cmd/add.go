@@ -14,6 +14,7 @@ var (
 	addForce             bool
 	addProjectDir        string
 	addCrudWithMigration bool
+	addCrudWithAudit     bool
 	addHTTPClients       []string
 	addHTTPPublicClients []string
 	addHTTPDomain        string
@@ -62,6 +63,7 @@ func init() {
 		},
 	}
 	crudCmd.Flags().BoolVar(&addCrudWithMigration, "with-migration", false, "Also create migrations/<driver>/ create_<module>_table up/down SQL")
+	crudCmd.Flags().BoolVar(&addCrudWithAudit, "audit", false, "Inject audit.Recorder into Application and generate operation-log stubs")
 	addCmd.AddCommand(crudCmd)
 
 	addCmd.AddCommand(&cobra.Command{
@@ -208,6 +210,7 @@ func genOpts(name string, withMigration bool) generator.ModuleOptions {
 		ModuleName:    name,
 		Force:         addForce,
 		WithMigration: withMigration,
+		WithAudit:     addCrudWithAudit,
 		Clients:       append([]string(nil), addHTTPClients...),
 		PublicClients: append([]string(nil), addHTTPPublicClients...),
 		Domain:        domain,
