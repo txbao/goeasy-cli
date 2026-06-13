@@ -179,7 +179,7 @@ import (
 	goeasyapp "github.com/txbao/goeasy/app"
 
 	rpcdemoapp "%s/internal/app/rpcdemo"
-	rpcdemoinfra "%s/internal/infrastructure/persistence/repository/rpcdemo"
+	rpcdemoinfra "%s/internal/infrastructure/rpcdemo/persistence/rpcdemo"
 	remote "%s/internal/infrastructure/rpc/%s"
 	adminrpcdemo "%s/internal/interface/http/admin/rpcdemo"
 	"%s/internal/interface/http/middleware"

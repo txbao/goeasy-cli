@@ -5,18 +5,12 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
-	"strings"
 )
 
 func ensureDBXPackage(opts ModuleOptions) error {
-	markers := []string{
-		filepath.Join(opts.ProjectDir, "internal", "infrastructure", "shared", "dbx", "dialect.go"),
-		filepath.Join(opts.ProjectDir, "internal", "infrastructure", "persistence", "dbx", "dialect.go"),
-	}
-	for _, m := range markers {
-		if _, err := os.Stat(m); err == nil {
-			return nil
-		}
+	marker := filepath.Join(opts.ProjectDir, "internal", "infrastructure", "shared", "dbx", "dialect.go")
+	if _, err := os.Stat(marker); err == nil {
+		return nil
 	}
 	projectModule, err := readModulePath(opts.ProjectDir)
 	if err != nil {
@@ -30,16 +24,7 @@ func ensureDBXPackage(opts ModuleOptions) error {
 	if err != nil {
 		return err
 	}
-	tplRoots := []string{
-		"internal/infrastructure/shared/dbx",
-		"internal/infrastructure/persistence/dbx",
-	}
-	for _, root := range tplRoots {
-		if err := walkDBXTemplates(sub, root, opts, data); err != nil {
-			return err
-		}
-	}
-	return nil
+	return walkDBXTemplates(sub, "internal/infrastructure/shared/dbx", opts, data)
 }
 
 func walkDBXTemplates(sub fs.FS, root string, opts ModuleOptions, data map[string]any) error {
@@ -54,7 +39,7 @@ func walkDBXTemplates(sub fs.FS, root string, opts ModuleOptions, data map[strin
 		if d.IsDir() || path == root {
 			return nil
 		}
-		targetRel := strings.Replace(path, "internal/infrastructure/persistence/dbx", "internal/infrastructure/shared/dbx", 1)
+		targetRel := path
 		if filepath.Ext(targetRel) == ".tmpl" {
 			targetRel = targetRel[:len(targetRel)-5]
 		}

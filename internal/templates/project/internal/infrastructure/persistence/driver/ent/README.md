@@ -1,3 +1,3 @@
-# Ent 扩展（可选）
+# 可选 ORM：Ent
 
-设置 `database.orm: ent` 后，在此包或通过 `ent/` 生成代码适配 domain.Repository。
+默认规范为 **sqlx + goqu**（`internal/infrastructure/shared/dbx/`）。若引入 Ent，建议新建项目侧 schema 与生成物目录，勿与 domain 混放。

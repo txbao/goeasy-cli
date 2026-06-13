@@ -1,3 +1,3 @@
-# GORM 扩展（可选）
+# 可选 ORM：GORM
 
-设置 `database.orm: gorm` 后，在此包实现仓储，仅做持久化映射，业务规则仍在 domain。
+默认规范为 **sqlx + goqu**（`internal/infrastructure/shared/dbx/`）。若引入 GORM，建议新建 `internal/infrastructure/persistence/driver/gorm/` 下的项目侧封装，勿与 domain 混放。

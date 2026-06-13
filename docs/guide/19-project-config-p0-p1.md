@@ -62,7 +62,7 @@ goeasy-cli add db crud --table sys_roles --force
 NewPGRepository(sqlxDB, infra.DBDriver, table, infra.Cache, infra.RedisKeyPrefix, "sys_roles", infra.EntityCacheEnabled, infra.EntityCacheTTL)
 ```
 
-持久化路径（P1）：`internal/infrastructure/persistence/repository/<module>/`。
+持久化路径（P1）：`internal/infrastructure/<domain>/persistence/<resource>/`；公共 SQL 工具在 `internal/infrastructure/shared/dbx/`。
 
 ## 3. P1：CORS
 
@@ -113,8 +113,8 @@ h5 := engine.Group("/api/v1/h5", middleware.MemberAuth(infra))
 | `configs/config.yaml` 含 `redis` / `cache` / `http.cors` / `member_jwt` | □ |
 | `go.mod` replace 本地 goeasy（monorepo） | □ |
 | 迁移已 `migrate up` | □ |
-| `repository` 在 `persistence/repository/sys_roles/` | □ |
-| `register_*.go` import 路径含 `persistence/repository/` | □ |
+| 仓储在 `infrastructure/<domain>/persistence/<resource>/` | □ |
+| `register_*.go` import 含 `shared/dbx` 与领域 persistence 路径 | □ |
 | `add db crud --force` 后编译通过 | □ |
 
 ## 6. 常见错误

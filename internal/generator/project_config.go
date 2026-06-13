@@ -41,7 +41,7 @@ func readProjectDBDriver(projectDir string) (string, error) {
 	return driver, err
 }
 
-// tableName 与 persistence/dbx.TableName 规则一致。
+// tableName 与 shared/dbx.TableName 规则一致。
 func tableName(prefix, module string) string {
 	if prefix == "" {
 		return module
